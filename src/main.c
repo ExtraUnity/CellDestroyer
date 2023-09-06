@@ -3,8 +3,21 @@
 #include "cbmp.h"
 
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
-unsigned char input_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
-unsigned char output_image[BMP_WIDTH][BMP_HEIGTH][BMP_CHANNELS];
+unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
+unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
+
+unsigned char toGreyScale(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
+{
+    unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            greyscale_image[i][j] = (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) / 3;
+        }
+    }
+    return greyscale_image;
+}
 
 int main(int argc, char **argv)
 {
@@ -18,10 +31,11 @@ int main(int argc, char **argv)
     // Load image from file
     read_bitmap(argv[1], input_image);
 
+    unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT] = toGreyScale(input_image);
+
     /*
     Find all cells
     */
-
 
     // Save image to file
     write_bitmap(output_image, argv[2]);
