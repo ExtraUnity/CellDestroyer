@@ -4,10 +4,10 @@
 
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
-unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
+
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 
-void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
+void formatOutputImage(char input[BMP_WIDTH][BMP_HEIGHT])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
     {
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     // Load image from file
     read_bitmap(argv[1], input_image);
 
-    
+    unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 
     for (int i = 0; i < BMP_WIDTH; i++)
     {
