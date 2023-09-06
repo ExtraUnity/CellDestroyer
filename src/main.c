@@ -22,12 +22,11 @@ int excludeCell(int x, int y)
             continue;
         }
 
-        if (greyscale_image[x - 6][y + dy] > 0)
+        if (greyscale_image[x - 6][y + dy] == 255)
         {
             return 1;
         }
     }
-
     // Check right exclusion border
     for (int dy = -6; dy <= 7; dy++)
     {
@@ -40,7 +39,7 @@ int excludeCell(int x, int y)
             continue;
         }
 
-        if (greyscale_image[x + 7][y + dy] > 0)
+        if (greyscale_image[x + 7][y + dy] == 255)
         {
             return 1;
         }
@@ -58,7 +57,7 @@ int excludeCell(int x, int y)
             continue;
         }
 
-        if (greyscale_image[x + dx][y - 6] > 0)
+        if (greyscale_image[x + dx][y - 6] == 255)
         {
             return 1;
         }
@@ -76,7 +75,7 @@ int excludeCell(int x, int y)
             continue;
         }
 
-        if (greyscale_image[x + dx][y + 7] > 0)
+        if (greyscale_image[x + dx][y + 7] == 255)
         {
             return 1;
         }
@@ -122,14 +121,15 @@ void detectCells()
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
             // Check exclusion border first
-            if (excludeCell)
+            if (excludeCell(x,y))
             {
                 continue;
             }
             if(cellInFrame(x,y)) {
+                printf("FOUND CELL AT (%d,%d)!", x, y);
                 /*
                 *
-                *
+                * INCREMENT COUNTER, ADD COORDINATES TO ARRAY AND ADD RED CROSS TO OUTPUT IMAGE
                 * 
                 */
             }
