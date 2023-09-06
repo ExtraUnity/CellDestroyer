@@ -126,7 +126,7 @@ void detectCells()
                 continue;
             }
             if(cellInFrame(x,y)) {
-                printf("FOUND CELL AT (%d,%d)!", x, y);
+                
                 /*
                 *
                 * INCREMENT COUNTER, ADD COORDINATES TO ARRAY AND ADD RED CROSS TO OUTPUT IMAGE
