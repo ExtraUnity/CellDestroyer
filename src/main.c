@@ -7,6 +7,33 @@ unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 
+// Marks the cell with a red cross in output_image
+void markCell(int x, int y) {
+
+  // Cross sign with size and "Red" color (R, G, B)
+  unsigned char color[3] = {255, 0, 0};
+  int size = 5;
+
+  for (int dx = -size; dx <= size; dx++) {
+    //Ensures inside border edge horizontally (Redundant?)
+    if (x + dx >= 0 && x + dx < BMP_WIDTH) {
+      // Draws the horizontal line
+      input_image[x + dx][y][0] = color[0];
+      input_image[x + dx][y][1] = color[1];
+      input_image[x + dx][y][2] = color[2];
+    }
+  }
+  for (int dy = -size; dy <= size; dy++) {
+    //Ensures inside border edge vertically (Redundant?)
+    if (y + dy >= 0 && y + dy < BMP_HEIGHT) {
+      // Draws the vertical line
+      input_image[x][y + dy][0] = color[0];
+      input_image[x][y + dy][1] = color[1];
+      input_image[x][y + dy][2] = color[2];
+    }
+  }
+}
+
 // Check the four borders for white pixels
 int excludeCell(int x, int y)
 {
@@ -126,7 +153,9 @@ void detectCells()
                 continue;
             }
             if(cellInFrame(x,y)) {
-                
+
+                //Marks the cells with a red cross
+                markCell(x, y); 
                 /*
                 *
                 * INCREMENT COUNTER, ADD COORDINATES TO ARRAY AND ADD RED CROSS TO OUTPUT IMAGE
@@ -291,13 +320,14 @@ int main(int argc, char **argv)
     Find all cells
     */
     binaryThreshold();
-    printf("Done with thresholding");
+    printf("Done with thresholding...\n");
     erodeImage();
-    printf("Done with eroding");
+    printf("Done with eroding...\n");
     formatOutputImage(greyscale_image);
 
     // Save image to file
-    write_bitmap(output_image, argv[2]);
-    printf("Number of cells has not been counted yet :(");
+    write_bitmap(input_image, argv[2]);
+    printf("Final result saved to path: %s\n", argv[2]);
+    //printf("Number of cells has not been counted yet :(");
     return 0;
 }
