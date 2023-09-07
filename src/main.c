@@ -15,7 +15,7 @@ void markCell(int x, int y) {
   int size = 5;
 
   for (int dx = -size; dx <= size; dx++) {
-    //Ensures inside border edge horizontally (Redundant?)
+    // Ensures inside border edge horizontally (Redundant?)
     if (x + dx >= 0 && x + dx < BMP_WIDTH) {
       // Draws the horizontal line
       input_image[x + dx][y][0] = color[0];
@@ -24,7 +24,7 @@ void markCell(int x, int y) {
     }
   }
   for (int dy = -size; dy <= size; dy++) {
-    //Ensures inside border edge vertically (Redundant?)
+    // Ensures inside border edge vertically (Redundant?)
     if (y + dy >= 0 && y + dy < BMP_HEIGHT) {
       // Draws the vertical line
       input_image[x][y + dy][0] = color[0];
@@ -35,299 +35,247 @@ void markCell(int x, int y) {
 }
 
 // Check the four borders for white pixels
-int excludeCell(int x, int y)
-{
-    // Check left exclusion border
-    for (int dy = -6; dy <= 7; dy++)
-    {
-        if (x - 6 < 0)
-        {
-            break;
-        }
-        if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
-        {
-            continue;
-        }
-
-        if (greyscale_image[x - 6][y + dy] == 255)
-        {
-            return 1;
-        }
+int excludeCell(int x, int y) {
+  // Check left exclusion border
+  for (int dy = -6; dy <= 7; dy++) {
+    if (x - 6 < 0) {
+      break;
     }
-    // Check right exclusion border
-    for (int dy = -6; dy <= 7; dy++)
-    {
-        if (x + 7 > BMP_WIDTH - 1)
-        {
-            break;
-        }
-        if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
-        {
-            continue;
-        }
-
-        if (greyscale_image[x + 7][y + dy] == 255)
-        {
-            return 1;
-        }
+    if (y + dy < 0 || y + dy > BMP_HEIGHT - 1) {
+      continue;
     }
 
-    // Check top exclusion border
-    for (int dx = -6; dx <= 7; dx++)
-    {
-        if (y - 6 < 0)
-        {
-            break;
-        }
-        if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
-        {
-            continue;
-        }
-
-        if (greyscale_image[x + dx][y - 6] == 255)
-        {
-            return 1;
-        }
+    if (greyscale_image[x - 6][y + dy] == 255) {
+      return 1;
+    }
+  }
+  // Check right exclusion border
+  for (int dy = -6; dy <= 7; dy++) {
+    if (x + 7 > BMP_WIDTH - 1) {
+      break;
+    }
+    if (y + dy < 0 || y + dy > BMP_HEIGHT - 1) {
+      continue;
     }
 
-    // Check bottom exclusion border
-    for (int dx = -6; dx <= 7; dx++)
-    {
-        if (y + 7 > BMP_HEIGHT - 1)
-        {
-            break;
-        }
-        if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
-        {
-            continue;
-        }
+    if (greyscale_image[x + 7][y + dy] == 255) {
+      return 1;
+    }
+  }
 
-        if (greyscale_image[x + dx][y + 7] == 255)
-        {
-            return 1;
-        }
+  // Check top exclusion border
+  for (int dx = -6; dx <= 7; dx++) {
+    if (y - 6 < 0) {
+      break;
+    }
+    if (x + dx < 0 || x + dx > BMP_WIDTH - 1) {
+      continue;
     }
 
-    return 0;
+    if (greyscale_image[x + dx][y - 6] == 255) {
+      return 1;
+    }
+  }
+
+  // Check bottom exclusion border
+  for (int dx = -6; dx <= 7; dx++) {
+    if (y + 7 > BMP_HEIGHT - 1) {
+      break;
+    }
+    if (x + dx < 0 || x + dx > BMP_WIDTH - 1) {
+      continue;
+    }
+
+    if (greyscale_image[x + dx][y + 7] == 255) {
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
-int cellInFrame(int x, int y)
-{
-    for (int dx = -5; dx <= 6; dx++)
-    {
-        if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
-        { // Check if on x-edge
-            continue;
-        }
-        for (int dy = -5; dy <= 6; dy++)
-        {
-            if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
-            { // Check if on y-edge
-                continue;
-            }
-
-            if (greyscale_image[x + dx][y + dy] > 0)
-            {
-                /*
-                *
-                * POSSIBLY REMOVE CELL FROM IMAGE HERE
-                * 
-                */
-                return 1;
-            }
-        }
+int cellInFrame(int x, int y) {
+  for (int dx = -5; dx <= 6; dx++) {
+    if (x + dx < 0 || x + dx > BMP_WIDTH - 1) { // Check if on x-edge
+      continue;
     }
-    return 0;
+    for (int dy = -5; dy <= 6; dy++) {
+      if (y + dy < 0 || y + dy > BMP_HEIGHT - 1) { // Check if on y-edge
+        continue;
+      }
+
+      if (greyscale_image[x + dx][y + dy] > 0) {
+        /*
+         *
+         * POSSIBLY REMOVE CELL FROM IMAGE HERE
+         *
+         */
+        return 1;
+      }
+    }
+  }
+  return 0;
 }
 
-void detectCells()
-{
+void detectCells() {
+  // Loop through all pixels
+  for (int x = 0; x < BMP_WIDTH; x++) {
+    for (int y = 0; y < BMP_HEIGHT; y++) {
+      // Check exclusion border first
+      if (excludeCell(x, y)) {
+        continue;
+      }
+      if (cellInFrame(x, y)) {
+
+        // Marks the cells with a red cross
+        markCell(x, y);
+        /*
+         *
+         * INCREMENT COUNTER,
+         * ADD COORDINATES TO ARRAY
+         * ADD RED CROSS TO OUTPUT IMAGE (in-progress)
+         *
+         */
+      }
+    }
+  }
+}
+
+void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT]) {
+  for (int i = 0; i < BMP_WIDTH; i++) {
+    for (int j = 0; j < BMP_HEIGHT; j++) {
+      for (int k = 0; k < BMP_CHANNELS; k++) {
+
+        output_image[i][j][k] = input[i][j];
+      }
+    }
+  }
+}
+
+void erodeImage() {
+  int erosionNumber = 0;
+  int hasEroded = 1;
+
+  int kernel[3][3] = {
+      {0, 1, 0},
+      {1, 1, 1},
+      {0, 1, 0},
+  };
+
+  unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
+  char fileName[256];
+  while (hasEroded) {
+    erosionNumber++;
+    hasEroded = 0;
+    // Copy original
+    for (int i = 0; i < BMP_WIDTH; i++) {
+      for (int j = 0; j < BMP_HEIGHT; j++) {
+        erodedImage[i][j] = greyscale_image[i][j];
+      }
+    }
+
     // Loop through all pixels
-    for (int x = 0; x < BMP_WIDTH; x++)
-    {
-        for (int y = 0; y < BMP_HEIGHT; y++)
-        {
-            // Check exclusion border first
-            if (excludeCell(x,y))
-            {
-                continue;
-            }
-            if(cellInFrame(x,y)) {
-
-                //Marks the cells with a red cross
-                markCell(x, y); 
-                /*
-                *
-                * INCREMENT COUNTER, ADD COORDINATES TO ARRAY AND ADD RED CROSS TO OUTPUT IMAGE
-                * 
-                */
-            }
+    for (int x = 0; x < BMP_WIDTH; x++) {
+      for (int y = 0; y < BMP_HEIGHT; y++) {
+        // If pixel is black then continue
+        if (greyscale_image[x][y] == 0) {
+          continue;
         }
+
+        int erode = 0;
+
+        // Apply kernel for selected pixel
+        for (int kx = -1; kx <= 1; kx++) {
+          if (x + kx < 0 || x + kx > BMP_WIDTH - 1) { // Check if on x-edge
+            continue;
+          }
+
+          for (int ky = -1; ky <= 1; ky++) {
+            if (y + ky < 0 || y + ky > BMP_HEIGHT - 1) { // Check if on y-edge
+              continue;
+            }
+
+            if (kernel[kx + 1][ky + 1] ==
+                0) { // If 0 in kernel then no need to check
+              continue;
+            }
+
+            if (greyscale_image[x + kx][y + ky] ==
+                0) // If value is not 1 in place where it needs to be then erode
+            {
+              erode = 1;
+              hasEroded = 1;
+            }
+          }
+        }
+        // erode image if needed
+        if (erode) {
+          erodedImage[x][y] = 0;
+        }
+      }
     }
+
+    // Copy eroded image to working image
+    for (int i = 0; i < BMP_WIDTH; i++) {
+      for (int j = 0; j < BMP_HEIGHT; j++) {
+        greyscale_image[i][j] = erodedImage[i][j];
+      }
+    }
+
+    // Save erosion image to file and detect cells
+    if (hasEroded) {
+      sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
+      formatOutputImage(erodedImage);
+      write_bitmap(output_image, fileName);
+      detectCells();
+    }
+  }
 }
 
-void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
-{
-    for (int i = 0; i < BMP_WIDTH; i++)
-    {
-        for (int j = 0; j < BMP_HEIGHT; j++)
-        {
-            for (int k = 0; k < BMP_CHANNELS; k++)
-            {
-
-                output_image[i][j][k] = input[i][j];
-            }
-        }
+void binaryThreshold() {
+  for (int i = 0; i < BMP_WIDTH; i++) {
+    for (int j = 0; j < BMP_HEIGHT; j++) {
+      if (greyscale_image[i][j] >= 90) {
+        greyscale_image[i][j] = 255;
+      }
+      if (greyscale_image[i][j] < 90) {
+        greyscale_image[i][j] = 0;
+      }
     }
+  }
 }
 
-void erodeImage()
-{
-    int erosionNumber = 0;
-    int hasEroded = 1;
+int main(int argc, char **argv) {
 
-    int kernel[3][3] = {
-        {0, 1, 0},
-        {1, 1, 1},
-        {0, 1, 0},
-    };
+  if (argc != 3) {
+    fprintf(stderr, "Usage: %s <output file path> <output file path>\n",
+            argv[0]);
+    exit(1);
+  }
 
-    unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
-    char fileName[256];
-    while (hasEroded)
-    {
-        erosionNumber++;
-        hasEroded = 0;
-        // Copy original
-        for (int i = 0; i < BMP_WIDTH; i++)
-        {
-            for (int j = 0; j < BMP_HEIGHT; j++)
-            {
-                erodedImage[i][j] = greyscale_image[i][j];
-            }
-        }
+  // Load image from file
+  read_bitmap(argv[1], input_image);
 
-        // Loop through all pixels
-        for (int x = 0; x < BMP_WIDTH; x++)
-        {
-            for (int y = 0; y < BMP_HEIGHT; y++)
-            {
-                // If pixel is black then continue
-                if (greyscale_image[x][y] == 0)
-                {
-                    continue;
-                }
-
-                int erode = 0;
-
-                // Apply kernel for selected pixel
-                for (int kx = -1; kx <= 1; kx++)
-                {
-                    if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
-                    { // Check if on x-edge
-                        continue;
-                    }
-
-                    for (int ky = -1; ky <= 1; ky++)
-                    {
-                        if (y + ky < 0 || y + ky > BMP_HEIGHT - 1)
-                        { // Check if on y-edge
-                            continue;
-                        }
-
-                        if (kernel[kx + 1][ky + 1] == 0)
-                        { // If 0 in kernel then no need to check
-                            continue;
-                        }
-
-                        if (greyscale_image[x + kx][y + ky] == 0) // If value is not 1 in place where it needs to be then erode
-                        {
-                            erode = 1;
-                            hasEroded = 1;
-                        }
-                    }
-                }
-                // erode image if needed
-                if (erode)
-                {
-                    erodedImage[x][y] = 0;
-                }
-            }
-        }
-
-        // Copy eroded image to working image
-        for (int i = 0; i < BMP_WIDTH; i++)
-        {
-            for (int j = 0; j < BMP_HEIGHT; j++)
-            {
-                greyscale_image[i][j] = erodedImage[i][j];
-            }
-        }
-
-        // Save erosion image to file and detect cells
-        if (hasEroded)
-        {
-            sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
-            formatOutputImage(erodedImage);
-            write_bitmap(output_image, fileName);
-            detectCells();
-        }
+  for (int i = 0; i < BMP_WIDTH; i++) {
+    for (int j = 0; j < BMP_HEIGHT; j++) {
+      greyscale_image[i][j] =
+          (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
+          3;
     }
-}
+  }
 
-void binaryThreshold()
-{
-    for (int i = 0; i < BMP_WIDTH; i++)
-    {
-        for (int j = 0; j < BMP_HEIGHT; j++)
-        {
-            if (greyscale_image[i][j] >= 90)
-            {
-                greyscale_image[i][j] = 255;
-            }
-            if (greyscale_image[i][j] < 90)
-            {
-                greyscale_image[i][j] = 0;
-            }
-        }
-    }
-}
+  /*
+  Find all cells
+  */
+  binaryThreshold();
+  printf("Done with thresholding...\n");
+  erodeImage();
+  printf("Done with eroding...\n");
+  formatOutputImage(greyscale_image);
 
-int main(int argc, char **argv)
-{
-
-    if (argc != 3)
-    {
-        fprintf(stderr, "Usage: %s <output file path> <output file path>\n",
-                argv[0]);
-        exit(1);
-    }
-
-    // Load image from file
-    read_bitmap(argv[1], input_image);
-
-    for (int i = 0; i < BMP_WIDTH; i++)
-    {
-        for (int j = 0; j < BMP_HEIGHT; j++)
-        {
-            greyscale_image[i][j] =
-                (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
-                3;
-        }
-    }
-
-    /*
-    Find all cells
-    */
-    binaryThreshold();
-    printf("Done with thresholding...\n");
-    erodeImage();
-    printf("Done with eroding...\n");
-    formatOutputImage(greyscale_image);
-
-    // Save image to file
-    write_bitmap(input_image, argv[2]);
-    printf("Final result saved to path: %s\n", argv[2]);
-    //printf("Number of cells has not been counted yet :(");
-    return 0;
+  // Save image to file
+  write_bitmap(input_image, argv[2]);
+  printf("Final result saved to path: %s\n", argv[2]);
+  // printf("Number of cells has not been counted yet :(");
+  return 0;
 }
