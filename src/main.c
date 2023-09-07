@@ -10,26 +10,23 @@ unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y) {
 
-  // Cross sign with size and "Red" color (R, G, B)
-  unsigned char color[3] = {255, 0, 0};
-  int size = 5;
 
-  for (int dx = -size; dx <= size; dx++) {
+  for (int dx = -5; dx <= 5; dx++) {
     // Ensures inside border edge horizontally (Redundant?)
     if (x + dx >= 0 && x + dx < BMP_WIDTH) {
       // Draws the horizontal line
-      input_image[x + dx][y][0] = color[0];
-      input_image[x + dx][y][1] = color[1];
-      input_image[x + dx][y][2] = color[2];
+      input_image[x + dx][y][0] = 255;
+      input_image[x + dx][y][1] = 0;
+      input_image[x + dx][y][2] = 0;
     }
   }
-  for (int dy = -size; dy <= size; dy++) {
+  for (int dy = -5; dy <= 5; dy++) {
     // Ensures inside border edge vertically (Redundant?)
     if (y + dy >= 0 && y + dy < BMP_HEIGHT) {
       // Draws the vertical line
-      input_image[x][y + dy][0] = color[0];
-      input_image[x][y + dy][1] = color[1];
-      input_image[x][y + dy][2] = color[2];
+      input_image[x][y + dy][0] = 255;
+      input_image[x][y + dy][1] = 0;
+      input_image[x][y + dy][2] = 0;
     }
   }
 }
