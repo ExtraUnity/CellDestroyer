@@ -290,8 +290,8 @@ int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 void erodeImage()
 {
     int erosionNumber = 0;
-    int hasEroded = 1;
-
+    int hasEroded;
+    int hasDilated;
     int kernel[3][3] = {
         {0, 1, 0},
         {1, 1, 1},
@@ -304,7 +304,6 @@ void erodeImage()
     {
         erosionNumber++;
         hasEroded = erode(erodedImage);
-
         // Save erosion image to file and detect cells
         if (hasEroded)
         {
@@ -373,11 +372,11 @@ int main(int argc, char **argv)
         binaryThreshold();
         end = clock();
         cpu_time_used = end - start;
-        printf("%fms ", cpu_time_used*1000.0/CLOCKS_PER_SEC);
+        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         erodeImage();
         end = clock();
         cpu_time_used = end - start;
-        printf("%fms ", cpu_time_used*1000.0/CLOCKS_PER_SEC);
+        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         formatOutputImage(greyscale_image);
         // Save image to file
         snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
