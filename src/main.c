@@ -8,6 +8,18 @@ unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 int totalCells = 0;
+
+// Otsu's algorithm for better threshold value
+int otsu_method(){
+
+    for(int i = 1; i<255; i++){
+
+    
+    }
+    
+    return 90;
+}
+
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y)
 {
@@ -305,7 +317,7 @@ void erodeImage()
 
 void binaryThreshold()
 {
-int threshold_value = 90;
+int threshold_value = otsu_method();
 
     for (int i = 0; i < BMP_WIDTH; i++)
     {
