@@ -305,17 +305,19 @@ void erodeImage()
 
 void binaryThreshold()
 {
+int threshold_value = 90;
+
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            if (greyscale_image[i][j] >= 90)
+            if (greyscale_image[i][j] >= threshold_value)
             {
-                greyscale_image[i][j] = 255;
+                greyscale_image[i][j] = 255; //white
             }
-            if (greyscale_image[i][j] < 90)
+            if (greyscale_image[i][j] < threshold_value)
             {
-                greyscale_image[i][j] = 0;
+                greyscale_image[i][j] = 0; //black
             }
         }
     }
