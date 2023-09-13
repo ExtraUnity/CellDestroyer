@@ -207,6 +207,86 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
     }
 }
 
+int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
+{
+    int hasEroded = 0;
+
+    int kernel[3][3] = {
+        {0, 1, 0},
+        {1, 1, 1},
+        {0, 1, 0},
+    };
+
+    // Copy original
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            erodedImage[i][j] = greyscale_image[i][j];
+        }
+    }
+
+    // Loop through all pixels
+    for (int x = 0; x < BMP_WIDTH; x++)
+    {
+        for (int y = 0; y < BMP_HEIGHT; y++)
+        {
+            // If pixel is black then continue
+            if (greyscale_image[x][y] == 0)
+            {
+                continue;
+            }
+
+            int erode = 0;
+
+            // Apply kernel for selected pixel
+            for (int kx = -1; kx <= 1; kx++)
+            {
+                if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
+                { // Check if on x-edge
+                    continue;
+                }
+
+                for (int ky = -1; ky <= 1; ky++)
+                {
+                    if (y + ky < 0 || y + ky > BMP_HEIGHT - 1)
+                    { // Check if on y-edge
+                        continue;
+                    }
+
+                    if (kernel[kx + 1][ky + 1] ==
+                        0)
+                    { // If 0 in kernel then no need to check
+                        continue;
+                    }
+
+                    if (greyscale_image[x + kx][y + ky] ==
+                        0) // If value is not 1 in place where it needs to be then erode
+                    {
+                        erode = 1;
+                        hasEroded = 1;
+                    }
+                }
+            }
+            // erode image if needed
+            if (erode)
+            {
+                erodedImage[x][y] = 0;
+            }
+        }
+    }
+
+    // Copy eroded image to working image
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            greyscale_image[i][j] = erodedImage[i][j];
+        }
+    }
+    return hasEroded;
+}
+
 void erodeImage()
 {
     int erosionNumber = 0;
@@ -223,74 +303,7 @@ void erodeImage()
     while (hasEroded)
     {
         erosionNumber++;
-        hasEroded = 0;
-        // Copy original
-        for (int i = 0; i < BMP_WIDTH; i++)
-        {
-            for (int j = 0; j < BMP_HEIGHT; j++)
-            {
-                erodedImage[i][j] = greyscale_image[i][j];
-            }
-        }
-
-        // Loop through all pixels
-        for (int x = 0; x < BMP_WIDTH; x++)
-        {
-            for (int y = 0; y < BMP_HEIGHT; y++)
-            {
-                // If pixel is black then continue
-                if (greyscale_image[x][y] == 0)
-                {
-                    continue;
-                }
-
-                int erode = 0;
-
-                // Apply kernel for selected pixel
-                for (int kx = -1; kx <= 1; kx++)
-                {
-                    if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
-                    { // Check if on x-edge
-                        continue;
-                    }
-
-                    for (int ky = -1; ky <= 1; ky++)
-                    {
-                        if (y + ky < 0 || y + ky > BMP_HEIGHT - 1)
-                        { // Check if on y-edge
-                            continue;
-                        }
-
-                        if (kernel[kx + 1][ky + 1] ==
-                            0)
-                        { // If 0 in kernel then no need to check
-                            continue;
-                        }
-
-                        if (greyscale_image[x + kx][y + ky] ==
-                            0) // If value is not 1 in place where it needs to be then erode
-                        {
-                            erode = 1;
-                            hasEroded = 1;
-                        }
-                    }
-                }
-                // erode image if needed
-                if (erode)
-                {
-                    erodedImage[x][y] = 0;
-                }
-            }
-        }
-
-        // Copy eroded image to working image
-        for (int i = 0; i < BMP_WIDTH; i++)
-        {
-            for (int j = 0; j < BMP_HEIGHT; j++)
-            {
-                greyscale_image[i][j] = erodedImage[i][j];
-            }
-        }
+        hasEroded = erode(erodedImage);
 
         // Save erosion image to file and detect cells
         if (hasEroded)
@@ -337,9 +350,9 @@ int main(int argc, char **argv)
         printf("Start of analysis");
         totalCells = 0;
         char buf[48];
-        
+
         snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
-        //printf(buf);
+        // printf(buf);
         read_bitmap(buf, input_image);
         printf("Read image");
         clock_t start, end;
