@@ -2,12 +2,102 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 int totalCells = 0;
+
+
+void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
+{
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            for (int k = 0; k < BMP_CHANNELS; k++)
+            {
+
+                output_image[i][j][k] = input[i][j];
+            }
+        }
+    }
+}
+
+// Blurs the greyscale_image using a gaussian filter
+void gaussianBlur()
+{
+    unsigned char blurred[BMP_WIDTH][BMP_HEIGHT];
+
+    int kernel[3][3] = {
+        // the kernel to be used
+        {1, 2, 1},
+        {1, 4, 2},
+        {1, 2, 1},
+    };
+
+    // Copy original image to working image
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            blurred[i][j] = greyscale_image[i][j];
+        }
+    }
+
+    // Loop through all pixels
+    for (int x = 0; x < BMP_WIDTH; x++)
+    {
+        for (int y = 0; y < BMP_HEIGHT; y++)
+        {
+            int sum = 0;     // The weighted sum of the pixels and surrounding area
+            int weight = 16; // the total weight of the kernel
+
+            // Apply kernel for selected pixel
+            for (int kx = -1; kx <= 1; kx++)
+            {
+
+                for (int ky = -1; ky <= 1; ky++)
+                {
+
+                    if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
+                    { // Check if on x-edge
+                        weight -= kernel[kx + 1][ky + 1]; //the weight then shouldnt be counted
+                        continue;
+                    }
+
+                    if (y + ky < 0 || y + ky > BMP_HEIGHT - 1)
+                    { // Check if on y-edge
+                        weight -= kernel[kx + 1][ky + 1];
+                        continue;
+                    }
+
+                    //compute the weighted sum
+                    sum += greyscale_image[x + kx][y + ky] * kernel[kx + 1][ky + 1]; 
+                }
+            }
+
+            //compute the weighted average
+            int average = sum / weight;
+            // printf("before %i    after %i\n",greyscale_image[x][y],average);
+
+            //set the brightness of the pixel
+            blurred[x][y] = average;
+        }
+    }
+
+    // Update original image
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            greyscale_image[i][j] = blurred[i][j];
+        }
+    }
+}
+
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y)
 {
@@ -192,20 +282,7 @@ void detectCells()
     }
 }
 
-void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
-{
-    for (int i = 0; i < BMP_WIDTH; i++)
-    {
-        for (int j = 0; j < BMP_HEIGHT; j++)
-        {
-            for (int k = 0; k < BMP_CHANNELS; k++)
-            {
 
-                output_image[i][j][k] = input[i][j];
-            }
-        }
-    }
-}
 
 int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 {
@@ -292,11 +369,6 @@ void erodeImage()
     int erosionNumber = 0;
     int hasEroded;
     int hasDilated;
-    int kernel[3][3] = {
-        {0, 1, 0},
-        {1, 1, 1},
-        {0, 1, 0},
-    };
 
     unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
     char fileName[256];
@@ -343,6 +415,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+
     // Load image from file
     for (int i = 1; i <= 10; i++)
     {
@@ -365,7 +438,8 @@ int main(int argc, char **argv)
                     3;
             }
         }
-
+        //Blur the image slighty to reduce brightness of outer pixels
+        gaussianBlur();
         /*
         Find all cells
         */
@@ -383,6 +457,5 @@ int main(int argc, char **argv)
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
-    // printf("Number of cells has not been counted yet :(");
     return 0;
 }
