@@ -211,7 +211,7 @@ void erodeImage()
 {
     int erosionNumber = 0;
     int hasEroded = 1;
-    
+
     int kernel[3][3] = {
         {0, 1, 0},
         {1, 1, 1},
@@ -295,9 +295,9 @@ void erodeImage()
         // Save erosion image to file and detect cells
         if (hasEroded)
         {
-             sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
-             formatOutputImage(erodedImage);
-             write_bitmap(output_image, fileName);
+            sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
+            formatOutputImage(erodedImage);
+            write_bitmap(output_image, fileName);
             detectCells();
         }
     }
@@ -332,38 +332,47 @@ int main(int argc, char **argv)
     }
 
     // Load image from file
-    read_bitmap(argv[1], input_image);
-    clock_t start, end;
-    double cpu_time_used;
-    
-    start = clock();
-    for (int i = 0; i < BMP_WIDTH; i++)
+    for (int i = 1; i <= 10; i++)
     {
-        for (int j = 0; j < BMP_HEIGHT; j++)
+        totalCells = 0;
+        char buf[48];
+        
+        snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
+        //printf(buf);
+        read_bitmap(buf, input_image);
+
+        clock_t start, end;
+        double cpu_time_used;
+
+        start = clock();
+        for (int i = 0; i < BMP_WIDTH; i++)
         {
-            greyscale_image[i][j] =
-                (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
-                3;
+            for (int j = 0; j < BMP_HEIGHT; j++)
+            {
+                greyscale_image[i][j] =
+                    (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
+                    3;
+            }
         }
+
+        /*
+        Find all cells
+        */
+        binaryThreshold();
+        end = clock();
+        cpu_time_used = end - start;
+        printf("%fms ", cpu_time_used);
+        erodeImage();
+        end = clock();
+        cpu_time_used = end - start;
+        printf("%fms ", cpu_time_used);
+        formatOutputImage(greyscale_image);
+
+        // Save image to file
+        snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
+        write_bitmap(input_image, buf);
+        printf("%i\n", totalCells);
     }
-
-    /*
-    Find all cells
-    */
-    binaryThreshold();
-    end = clock();
-    cpu_time_used = end - start;
-    printf("Thresholding done in: %f ms", cpu_time_used*1000.0/CLOCKS_PER_SEC);
-    erodeImage();
-    end = clock();
-    cpu_time_used = end - start;
-    printf("Done with eroding...\n Total time: %f ms\n", cpu_time_used*1000.0/CLOCKS_PER_SEC);
-    formatOutputImage(greyscale_image);
-
-    // Save image to file
-    write_bitmap(input_image, argv[2]);
-    printf("Final result saved to path: %s\n", argv[2]);
-    printf("Total Amount of cells: %i", totalCells);
     // printf("Number of cells has not been counted yet :(");
     return 0;
 }
