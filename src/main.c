@@ -334,13 +334,14 @@ int main(int argc, char **argv)
     // Load image from file
     for (int i = 1; i <= 10; i++)
     {
+        printf("Start of analysis");
         totalCells = 0;
         char buf[48];
         
         snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
         //printf(buf);
         read_bitmap(buf, input_image);
-
+        printf("Read image");
         clock_t start, end;
         double cpu_time_used;
 
@@ -359,18 +360,21 @@ int main(int argc, char **argv)
         Find all cells
         */
         binaryThreshold();
+        printf("Thresh done");
         end = clock();
         cpu_time_used = end - start;
         printf("%fms ", cpu_time_used);
         erodeImage();
+        printf("analysis done");
         end = clock();
         cpu_time_used = end - start;
         printf("%fms ", cpu_time_used);
         formatOutputImage(greyscale_image);
-
+        printf("Formatted");
         // Save image to file
         snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
         write_bitmap(input_image, buf);
+        printf("saved to file");
         printf("%i\n", totalCells);
     }
     // printf("Number of cells has not been counted yet :(");
