@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
@@ -10,34 +11,37 @@ unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 int totalCells = 0;
 int threshold_value = 0;
 
-
-//Better threshold value based on Otsu Method
+// Better threshold value based on Otsu Method
 int otsu_threshold() {
-  int histogram[256] = {0}; // Assuming 8-bit grayscale
-  int totalPixels = BMP_WIDTH * BMP_HEIGHT;
 
-  // Initialize histogram of greyscale values:
-  for (int i = 0; i < BMP_WIDTH; i++) {
-    for (int j = 0; j < BMP_HEIGHT; j++) {
-      histogram[greyscale_image[i][j]]++;
+  // Initialize histogram of size 256 and store each pixels greyscale intensity value (0-255):
+  int histogram[256] = {0};
+  for (int x = 0; x < BMP_WIDTH; x++) {
+    for (int y = 0; y < BMP_HEIGHT; y++) {
+      histogram[greyscale_image[x][y]]++;
     }
   }
 
-  // Calculate the threshold using Otsu's method
+  // Calculates the sum of (greyscale intensity * num of pixel with this intensity). 
+  // Makes it easier to calculate muB and muF later.
   int sum = 0;
-  for (int i = 0; i < 256; i++) {
-    sum += i * histogram[i];
+  for (int p = 0; p < 256; p++) {
+    sum += p * histogram[p];
   }
 
+  // The variables used in Otsu Method/Formula
   int sumB = 0;
-  int wB = 0;
-  int wF = 0;
-  int mB, mF;
-  double maxVariance = 0.0;
+  int wB = 0;   // Num of pixels in Background (black) out of total pixels
+  int wF = 0;   // Num of pixels in Foreground (white) out of total pixels
+  int muB, muF; // Average of wB and wF respectively
+  double maxVariance = 0.0; // "between class" maxVariance
   int threshold = 0;
 
+
+  // Loops through histogram and performs Otsu Method:
+  int totalPixels = BMP_WIDTH * BMP_HEIGHT;
   for (int i = 0; i < 256; i++) {
-    wB += histogram[i];
+    wB = wB + histogram[i];
     if (wB == 0)
       continue;
 
@@ -46,22 +50,21 @@ int otsu_threshold() {
       break;
 
     sumB += i * histogram[i];
-    mB = sumB / wB;
-    mF = (sum - sumB) / wF;
+    muB = sumB / wB;
+    muF = (sum - sumB) / wF;
 
-    //Uses the Otsu Formula to calculate the "in-between" Variance:
-    double varianceBetween = (double)wB * wF * (mB - mF) * (mB - mF) / (wB + wF);
+    // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
+    double varianceBetween = (double) wB * wF * pow((muB - muF),2)/ (wB + wF);
     if (varianceBetween > maxVariance) {
       maxVariance = varianceBetween;
       threshold = i;
     }
   }
 
-//Change the global variable of threshold value
-printf("\nBinary Threshold Value: %d\n",threshold);
-return threshold;
+  // Change the global variable of threshold value
+  printf("\nBinary Threshold Value: %d\n", threshold);
+  return threshold;
 }
-
 
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y) {
@@ -300,9 +303,9 @@ void erodeImage() {
   }
 }
 
-//Binary Threshold based on global value "threshold_value"
+// Binary Threshold based on global value "threshold_value"
 void binaryThreshold() {
-  threshold_value = otsu_threshold();  //Change to 90 to get the previos "Standard" threshold
+  threshold_value = otsu_threshold(); // Change to 90 to get the previos "Standard" threshold
   for (int i = 0; i < BMP_WIDTH; i++) {
     for (int j = 0; j < BMP_HEIGHT; j++) {
       if (greyscale_image[i][j] >= threshold_value) {
@@ -323,46 +326,43 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-    // Load image from file
-    for (int i = 1; i <= 10; i++)
-    {
-        totalCells = 0;
-        char buf[48];
+  // Load a series of images from file
+  for (int i = 1; i <= 10; i++) {
+    totalCells = 0;
+    char buf[48];
 
-        snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
-        // printf(buf);
-        read_bitmap(buf, input_image);
-        clock_t start, end;
-        double cpu_time_used;
+    snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
+    // printf(buf);
+    read_bitmap(buf, input_image);
+    clock_t start, end;
+    double cpu_time_used;
 
-        start = clock();
-        for (int i = 0; i < BMP_WIDTH; i++)
-        {
-            for (int j = 0; j < BMP_HEIGHT; j++)
-            {
-                greyscale_image[i][j] =
-                    (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
-                    3;
-            }
-        }
-
-        /*
-        Find all cells
-        */
-        binaryThreshold();
-        end = clock();
-        cpu_time_used = end - start;
-        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
-        erodeImage();
-        end = clock();
-        cpu_time_used = end - start;
-        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
-        formatOutputImage(greyscale_image);
-        // Save image to file
-        snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
-        write_bitmap(input_image, buf);
-        printf("%i\n", totalCells);
+    start = clock();
+    for (int i = 0; i < BMP_WIDTH; i++) {
+      for (int j = 0; j < BMP_HEIGHT; j++) {
+        greyscale_image[i][j] = (input_image[i][j][0] + input_image[i][j][1] +
+                                 input_image[i][j][2]) /
+                                3;
+      }
     }
-    // printf("Number of cells has not been counted yet :(");
-    return 0;
+
+    /*
+    Find all cells
+    */
+    binaryThreshold();
+    end = clock();
+    cpu_time_used = end - start;
+    printf("Image%d: %fms ",i, cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+    erodeImage();
+    end = clock();
+    cpu_time_used = end - start;
+    printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+    formatOutputImage(greyscale_image);
+    // Save image to file
+    snprintf(buf, 48, "../out/%iFinal.bmp", i);
+    write_bitmap(input_image, buf);
+    printf("%i\n", totalCells);
+  }
+  // printf("Number of cells has not been counted yet :(");
+  return 0;
 }
