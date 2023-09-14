@@ -8,6 +8,59 @@ unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 int totalCells = 0;
+int threshold_value = 0;
+
+
+//Better threshold value based on Otsu Method
+int otsu_threshold() {
+  int histogram[256] = {0}; // Assuming 8-bit grayscale
+  int totalPixels = BMP_WIDTH * BMP_HEIGHT;
+
+  // Initialize histogram of greyscale values:
+  for (int i = 0; i < BMP_WIDTH; i++) {
+    for (int j = 0; j < BMP_HEIGHT; j++) {
+      histogram[greyscale_image[i][j]]++;
+    }
+  }
+
+  // Calculate the threshold using Otsu's method
+  int sum = 0;
+  for (int i = 0; i < 256; i++) {
+    sum += i * histogram[i];
+  }
+
+  int sumB = 0;
+  int wB = 0;
+  int wF = 0;
+  int mB, mF;
+  double maxVariance = 0.0;
+  int threshold = 0;
+
+  for (int i = 0; i < 256; i++) {
+    wB += histogram[i];
+    if (wB == 0)
+      continue;
+
+    wF = totalPixels - wB;
+    if (wF == 0)
+      break;
+
+    sumB += i * histogram[i];
+    mB = sumB / wB;
+    mF = (sum - sumB) / wF;
+
+    //Uses the Otsu Formula to calculate the "in-between" Variance:
+    double varianceBetween = (double)wB * wF * (mB - mF) * (mB - mF) / (wB + wF);
+    if (varianceBetween > maxVariance) {
+      maxVariance = varianceBetween;
+      threshold = i;
+    }
+  }
+
+//Change the global variable of threshold value
+printf("\nBinary Threshold Value: %d\n",threshold);
+return threshold;
+}
 
 
 // Marks the cell with a red cross in output_image
@@ -247,9 +300,9 @@ void erodeImage() {
   }
 }
 
+//Binary Threshold based on global value "threshold_value"
 void binaryThreshold() {
-  int threshold_value = 90;
-
+  threshold_value = otsu_threshold();  //Change to 90 to get the previos "Standard" threshold
   for (int i = 0; i < BMP_WIDTH; i++) {
     for (int j = 0; j < BMP_HEIGHT; j++) {
       if (greyscale_image[i][j] >= threshold_value) {
