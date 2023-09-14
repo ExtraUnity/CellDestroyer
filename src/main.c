@@ -270,39 +270,46 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  // Load image from file
-  read_bitmap(argv[1], input_image);
-  clock_t start, end;
-  double cpu_time_used;
+    // Load image from file
+    for (int i = 1; i <= 10; i++)
+    {
+        totalCells = 0;
+        char buf[48];
 
-  start = clock();
-  for (int i = 0; i < BMP_WIDTH; i++) {
-    for (int j = 0; j < BMP_HEIGHT; j++) {
-      greyscale_image[i][j] =
-          (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
-          3;
+        snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
+        // printf(buf);
+        read_bitmap(buf, input_image);
+        clock_t start, end;
+        double cpu_time_used;
+
+        start = clock();
+        for (int i = 0; i < BMP_WIDTH; i++)
+        {
+            for (int j = 0; j < BMP_HEIGHT; j++)
+            {
+                greyscale_image[i][j] =
+                    (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
+                    3;
+            }
+        }
+
+        /*
+        Find all cells
+        */
+        binaryThreshold();
+        end = clock();
+        cpu_time_used = end - start;
+        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+        erodeImage();
+        end = clock();
+        cpu_time_used = end - start;
+        printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+        formatOutputImage(greyscale_image);
+        // Save image to file
+        snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
+        write_bitmap(input_image, buf);
+        printf("%i\n", totalCells);
     }
-  }
-
-  /*
-  Find all cells
-  */
-  binaryThreshold();
-  end = clock();
-  cpu_time_used = end - start;
-  printf("Thresholding done in: %f ms",
-         cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
-  erodeImage();
-  end = clock();
-  cpu_time_used = end - start;
-  printf("Done with eroding...\n Total time: %f ms\n",
-         cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
-  formatOutputImage(greyscale_image);
-
-  // Save image to file
-  write_bitmap(input_image, argv[2]);
-  printf("Final result saved to path: %s\n", argv[2]);
-  printf("Total Amount of cells: %i", totalCells);
-  // printf("Number of cells has not been counted yet :(");
-  return 0;
+    // printf("Number of cells has not been counted yet :(");
+    return 0;
 }
