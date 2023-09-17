@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 
-#define DIST_MASK_SIZE 3
+#define DIST_MASK_SIZE 5
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
@@ -26,7 +26,7 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
     }
 }
 
-// Computes the distance transform of the binary image using sequential two-pass system
+// Computes the distance transform of the binary image using parallel computing
 void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
 {
 
@@ -35,90 +35,77 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            dist[i][j] = greyscale_image[i][j] == 0 ? 0 : 1000;
+            dist[i][j] = greyscale_image[i][j] == 0 ? 0 : 255;
         }
     }
 
     unsigned char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
-        {4, 3, 4},
-        {3, 0, 3},
-        {4, 3, 4}};
+        {-1, 11, -1, 11, -1},
+        {11, 7, 5, 7, 11},
+        {-1, 5, 0, 5, -1},
+        {11, 7, 5, 7, 11},
+        {-1, 11, -1, 11, -1},
+    };
 
-    // Forward pass of mask
-    for (int i = (DIST_MASK_SIZE + 1) / 2; i < BMP_WIDTH; i++)
+    // unsigned char mask[3][3] = {
+    //     {4, 3, 4},
+    //     {3, 0, 3},
+    //     {4, 3, 4}
+    // };
+    int changed = 1;
+    while (changed)
     {
-        for (int j = (DIST_MASK_SIZE + 1) / 2; j < BMP_HEIGHT; j++)
+        changed = 0;
+
+        unsigned char newDist[BMP_WIDTH][BMP_HEIGHT];
+
+        for (int i = 0; i < BMP_WIDTH; i++)
         {
-            int min = 1000;
-
-            for (int ky = -1; ky <= 0; ky++)
+            for (int j = 0; j < BMP_HEIGHT; j++)
             {
-
-                if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
-                { // Check if on y-edge
-                    continue;
-                }
-
-                for (int kx = -1; kx <= 1; kx++)
+                int min = 10000;
+                int oldVal = dist[i][j];
+                for (int ky = -2; ky <= 2; ky++)
                 {
-                    if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
-                    { // Check if on x-edge
+
+                    if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
+                    { // Check if on y-edge
                         continue;
                     }
 
-                    // add edge clauses
-
-                    if (ky == 0 && kx == 1)
-                        continue;
-
-                    int val = dist[i + kx][j + ky] + mask[kx + 1][ky + 1];
-                    if (val < min)
+                    for (int kx = -2; kx <= 2; kx++)
                     {
-                        min = val;
+                        if(mask[kx + 2][ky + 2] == -1) {
+                            continue;
+                        }
+                        if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
+                        { // Check if on x-edge
+                            continue;
+                        }
+                        
+                        int val = dist[i + kx][j + ky] + mask[kx + 2][ky + 2];
+                        if (val < min)
+                        {
+                            min = val;
+                        }
                     }
+                }
+                newDist[i][j] = min;
+                if (min != dist[i][j])
+                {
+                    changed = 1;
                 }
             }
-            dist[i][j] = min;
+        }
+        for (int i = 0; i < BMP_WIDTH; i++)
+        {
+            for (int j = 0; j < BMP_HEIGHT; j++)
+            {
+                dist[i][j] = newDist[i][j];
+            }
         }
     }
 
-    // Backwards pass
-    for (int i = BMP_WIDTH - (DIST_MASK_SIZE - 1) / 2; i >= 0; i--)
-    {
-        for (int j = BMP_HEIGHT - (DIST_MASK_SIZE - 1) / 2; j >= 0; j--)
-        {
-
-            int min = 1000;
-
-            for (int ky = 1; ky >= 0; ky--)
-            {
-                if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
-                { // Check if on y-edge
-                    continue;
-                }
-
-                for (int kx = 1; kx >= -1; kx--)
-                {
-                    if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
-                    { // Check if on x-edge
-                        continue;
-                    }
-
-                    // add edge clauses
-
-                    if (ky == 0 && kx == -1)
-                        continue;
-
-                    int val = dist[i + kx][j + ky] + mask[kx + 1][ky + 1];
-                    if (val < min)
-                    {
-                        min = val;
-                    }
-                }
-            }
-            dist[i][j] = min;
-        }
-    }
 }
 
 // Blurs the greyscale_image using a gaussian filter
@@ -194,7 +181,7 @@ void gaussianBlur()
 }
 
 // Better threshold value based on Otsu Method
-int otsu_threshold()
+int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 {
 
     // Initialize histogram of size 256 and store each pixels greyscale intensity value (0-255):
@@ -203,7 +190,7 @@ int otsu_threshold()
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            histogram[greyscale_image[x][y]]++;
+            histogram[img[x][y]]++;
         }
     }
 
@@ -530,6 +517,7 @@ void erodeImage()
     char fileName[256];
     while (hasEroded)
     {
+        detectCells();
         erosionNumber++;
         hasEroded = erode(erodedImage);
         // Save erosion image to file and detect cells
@@ -538,25 +526,23 @@ void erodeImage()
             sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
             formatOutputImage(erodedImage);
             write_bitmap(output_image, fileName);
-            detectCells();
         }
     }
 }
 // Binary Threshold based on global value "threshold_value"
-void binaryThreshold()
+void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int threshold_value)
 {
-    int threshold_value = otsu_threshold(); // Change to 90 to get the previos "Standard" threshold
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            if (greyscale_image[i][j] >= threshold_value)
+            if (img[i][j] >= threshold_value)
             {
-                greyscale_image[i][j] = 255; // white
+                img[i][j] = 255; // white
             }
-            if (greyscale_image[i][j] < threshold_value)
+            if (img[i][j] < threshold_value)
             {
-                greyscale_image[i][j] = 0; // black
+                img[i][j] = 0; // black
             }
         }
     }
@@ -572,24 +558,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // read_bitmap("../assets/samples/easy/1EASY.bmp", input_image);
-
-    // for (int i = 0; i < BMP_WIDTH; i++)
-    // {
-    //     for (int j = 0; j < BMP_HEIGHT; j++)
-    //     {
-    //         greyscale_image[i][j] =
-    //             (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
-    //             3;
-    //     }
-    // }
-    // Blur the image slighty to reduce brightness of outer pixels
-    // gaussianBlur();
-    // /*
-    // Find all cells
-    // */
-    // binaryThreshold();
-
     // unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
     // distanceTransform(dist);
     // unsigned char distString[921500] = "";
@@ -601,15 +569,14 @@ int main(int argc, char **argv)
     //     }
     //     printf("\n");
     // }
-    // Load image from file
+    //Load image from file
 
-    
-    for (int i = 1; i <= 5; i++)
+    for (int i = 1; i <= 10; i++)
     {
         totalCells = 0;
         char buf[48];
 
-        snprintf(buf, 48, "../assets/samples/impossible/%iIMPOSSIBLE.bmp", i);
+        snprintf(buf, 48, "../assets/samples/hard/%iHARD.bmp", i);
         // printf(buf);
         read_bitmap(buf, input_image);
         clock_t start, end;
@@ -630,7 +597,20 @@ int main(int argc, char **argv)
         /*
         Find all cells
         */
-        binaryThreshold();
+        binaryThreshold(greyscale_image, otsu_threshold(greyscale_image)); // Change to 90 to get the previos "Standard" threshold
+        unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
+        distanceTransform(dist);
+        binaryThreshold(dist, otsu_threshold(dist));
+        formatOutputImage(dist);
+        write_bitmap(output_image, "../out/distThresh.bmp");
+
+        for (int i = 0; i < BMP_WIDTH; i++)
+        {
+            for (int j = 0; j < BMP_HEIGHT; j++)
+            {
+                greyscale_image[i][j] = dist[i][j];
+            }
+        }
         end = clock();
         cpu_time_used = end - start;
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
@@ -640,7 +620,7 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         formatOutputImage(greyscale_image);
         // Save image to file
-        snprintf(buf, 48, "../out/%iIMPOSSIBLEfinal.bmp", i);
+        snprintf(buf, 48, "../out/%iHARDfinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
