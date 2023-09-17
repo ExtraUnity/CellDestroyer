@@ -34,7 +34,7 @@ void gaussianBlur()
     int kernel[3][3] = {
         // the kernel to be used
         {1, 2, 1},
-        {1, 4, 2},
+        {2, 4, 2},
         {1, 2, 1},
     };
 
@@ -453,7 +453,7 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         formatOutputImage(greyscale_image);
         // Save image to file
-        snprintf(buf, 48, "../out/%iEASYFinal.bmp", i);
+        snprintf(buf, 48, "../out/%iEASYfinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
