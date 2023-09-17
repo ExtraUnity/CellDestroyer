@@ -4,6 +4,7 @@
 #include <time.h>
 #include <math.h>
 
+#define DIST_MASK_SIZE 3
 // Declaring the array to store the image (unsigned char = unsigned 8 bit)
 unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
@@ -21,6 +22,101 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
 
                 output_image[i][j][k] = input[i][j];
             }
+        }
+    }
+}
+
+// Computes the distance transform of the binary image using sequential two-pass system
+void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
+{
+
+    // initialize dist array
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            dist[i][j] = greyscale_image[i][j] == 0 ? 0 : 1000;
+        }
+    }
+
+    unsigned char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
+        {4, 3, 4},
+        {3, 0, 3},
+        {4, 3, 4}};
+
+    // Forward pass of mask
+    for (int i = (DIST_MASK_SIZE + 1) / 2; i < BMP_WIDTH; i++)
+    {
+        for (int j = (DIST_MASK_SIZE + 1) / 2; j < BMP_HEIGHT; j++)
+        {
+            int min = 1000;
+
+            for (int ky = -1; ky <= 0; ky++)
+            {
+
+                if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
+                { // Check if on y-edge
+                    continue;
+                }
+
+                for (int kx = -1; kx <= 1; kx++)
+                {
+                    if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
+                    { // Check if on x-edge
+                        continue;
+                    }
+
+                    // add edge clauses
+
+                    if (ky == 0 && kx == 1)
+                        continue;
+
+                    int val = dist[i + kx][j + ky] + mask[kx + 1][ky + 1];
+                    if (val < min)
+                    {
+                        min = val;
+                    }
+                }
+            }
+            dist[i][j] = min;
+        }
+    }
+
+    // Backwards pass
+    for (int i = BMP_WIDTH - (DIST_MASK_SIZE - 1) / 2; i >= 0; i--)
+    {
+        for (int j = BMP_HEIGHT - (DIST_MASK_SIZE - 1) / 2; j >= 0; j--)
+        {
+
+            int min = 1000;
+
+            for (int ky = 1; ky >= 0; ky--)
+            {
+                if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
+                { // Check if on y-edge
+                    continue;
+                }
+
+                for (int kx = 1; kx >= -1; kx--)
+                {
+                    if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
+                    { // Check if on x-edge
+                        continue;
+                    }
+
+                    // add edge clauses
+
+                    if (ky == 0 && kx == -1)
+                        continue;
+
+                    int val = dist[i + kx][j + ky] + mask[kx + 1][ky + 1];
+                    if (val < min)
+                    {
+                        min = val;
+                    }
+                }
+            }
+            dist[i][j] = min;
         }
     }
 }
@@ -153,7 +249,7 @@ int otsu_threshold()
     }
 
     // Change the global variable of threshold value
-    //printf("\nBinary Threshold Value: %d\n", threshold);
+    // printf("\nBinary Threshold Value: %d\n", threshold);
     return threshold;
 }
 
@@ -476,7 +572,38 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    // read_bitmap("../assets/samples/easy/1EASY.bmp", input_image);
+
+    // for (int i = 0; i < BMP_WIDTH; i++)
+    // {
+    //     for (int j = 0; j < BMP_HEIGHT; j++)
+    //     {
+    //         greyscale_image[i][j] =
+    //             (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
+    //             3;
+    //     }
+    // }
+    // Blur the image slighty to reduce brightness of outer pixels
+    // gaussianBlur();
+    // /*
+    // Find all cells
+    // */
+    // binaryThreshold();
+
+    // unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
+    // distanceTransform(dist);
+    // unsigned char distString[921500] = "";
+    // for (int i = 0; i < BMP_WIDTH; i++)
+    // {
+    //     for (int j = 0; j < BMP_HEIGHT; j++)
+    //     {
+    //         printf("%i ", dist[i][j]);
+    //     }
+    //     printf("\n");
+    // }
     // Load image from file
+
+    
     for (int i = 1; i <= 5; i++)
     {
         totalCells = 0;
