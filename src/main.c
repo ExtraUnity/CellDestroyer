@@ -10,7 +10,6 @@ unsigned char greyscale_image[BMP_WIDTH][BMP_HEIGHT];
 unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS];
 int totalCells = 0;
 
-
 void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
@@ -63,8 +62,8 @@ void gaussianBlur()
                 {
 
                     if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
-                    { // Check if on x-edge
-                        weight -= kernel[kx + 1][ky + 1]; //the weight then shouldnt be counted
+                    {                                     // Check if on x-edge
+                        weight -= kernel[kx + 1][ky + 1]; // the weight then shouldnt be counted
                         continue;
                     }
 
@@ -74,16 +73,16 @@ void gaussianBlur()
                         continue;
                     }
 
-                    //compute the weighted sum
-                    sum += greyscale_image[x + kx][y + ky] * kernel[kx + 1][ky + 1]; 
+                    // compute the weighted sum
+                    sum += greyscale_image[x + kx][y + ky] * kernel[kx + 1][ky + 1];
                 }
             }
 
-            //compute the weighted average
+            // compute the weighted average
             int average = sum / weight;
             // printf("before %i    after %i\n",greyscale_image[x][y],average);
 
-            //set the brightness of the pixel
+            // set the brightness of the pixel
             blurred[x][y] = average;
         }
     }
@@ -96,6 +95,66 @@ void gaussianBlur()
             greyscale_image[i][j] = blurred[i][j];
         }
     }
+}
+
+// Better threshold value based on Otsu Method
+int otsu_threshold()
+{
+
+    // Initialize histogram of size 256 and store each pixels greyscale intensity value (0-255):
+    int histogram[256] = {0};
+    for (int x = 0; x < BMP_WIDTH; x++)
+    {
+        for (int y = 0; y < BMP_HEIGHT; y++)
+        {
+            histogram[greyscale_image[x][y]]++;
+        }
+    }
+
+    // Calculates the sum of (greyscale intensity * num of pixel with this intensity).
+    // Makes it easier to calculate muB and muF later.
+    int sum = 0;
+    for (int p = 0; p < 256; p++)
+    {
+        sum += p * histogram[p];
+    }
+
+    // The variables used in Otsu Method/Formula
+    int sumB = 0;
+    int wB = 0;               // Num of pixels in Background (black) out of total pixels
+    int wF = 0;               // Num of pixels in Foreground (white) out of total pixels
+    int muB, muF;             // Average of wB and wF respectively
+    double maxVariance = 0.0; // "between class" maxVariance
+    int threshold = 0;
+
+    // Loops through histogram and performs Otsu Method:
+    int totalPixels = BMP_WIDTH * BMP_HEIGHT;
+    for (int i = 0; i < 256; i++)
+    {
+        wB = wB + histogram[i];
+        if (wB == 0)
+            continue;
+
+        wF = totalPixels - wB;
+        if (wF == 0)
+            break;
+
+        sumB += i * histogram[i];
+        muB = sumB / wB;
+        muF = (sum - sumB) / wF;
+
+        // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
+        double varianceBetween = (double)wB * wF * pow((muB - muF), 2) / (wB + wF);
+        if (varianceBetween > maxVariance)
+        {
+            maxVariance = varianceBetween;
+            threshold = i;
+        }
+    }
+
+    // Change the global variable of threshold value
+    //printf("\nBinary Threshold Value: %d\n", threshold);
+    return threshold;
 }
 
 // Marks the cell with a red cross in output_image
@@ -282,11 +341,10 @@ void detectCells()
     }
 }
 
-
-
 int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 {
-    int hasEroded = 0;
+    int erosionNumber = 0;
+    int hasEroded = 1;
 
     int kernel[3][3] = {
         {0, 1, 0},
@@ -294,6 +352,7 @@ int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
         {0, 1, 0},
     };
 
+    hasEroded = 0;
     // Copy original
     for (int i = 0; i < BMP_WIDTH; i++)
     {
@@ -361,6 +420,7 @@ int erode(unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
             greyscale_image[i][j] = erodedImage[i][j];
         }
     }
+
     return hasEroded;
 }
 
@@ -386,20 +446,21 @@ void erodeImage()
         }
     }
 }
-
+// Binary Threshold based on global value "threshold_value"
 void binaryThreshold()
 {
+    int threshold_value = otsu_threshold(); // Change to 90 to get the previos "Standard" threshold
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            if (greyscale_image[i][j] >= 90)
+            if (greyscale_image[i][j] >= threshold_value)
             {
-                greyscale_image[i][j] = 255;
+                greyscale_image[i][j] = 255; // white
             }
-            if (greyscale_image[i][j] < 90)
+            if (greyscale_image[i][j] < threshold_value)
             {
-                greyscale_image[i][j] = 0;
+                greyscale_image[i][j] = 0; // black
             }
         }
     }
@@ -415,14 +476,13 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-
     // Load image from file
-    for (int i = 1; i <= 10; i++)
+    for (int i = 1; i <= 5; i++)
     {
         totalCells = 0;
         char buf[48];
 
-        snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
+        snprintf(buf, 48, "../assets/samples/impossible/%iIMPOSSIBLE.bmp", i);
         // printf(buf);
         read_bitmap(buf, input_image);
         clock_t start, end;
@@ -438,7 +498,7 @@ int main(int argc, char **argv)
                     3;
             }
         }
-        //Blur the image slighty to reduce brightness of outer pixels
+        // Blur the image slighty to reduce brightness of outer pixels
         gaussianBlur();
         /*
         Find all cells
@@ -453,7 +513,7 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         formatOutputImage(greyscale_image);
         // Save image to file
-        snprintf(buf, 48, "../out/%iEASYfinal.bmp", i);
+        snprintf(buf, 48, "../out/%iIMPOSSIBLEfinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
