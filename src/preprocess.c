@@ -2,6 +2,65 @@
 #include <math.h>
 #include <stdio.h>
 
+void markCell(int x, int y);
+
+int max(unsigned char img[BMP_WIDTH][BMP_HEIGHT]) {
+    int max = 0;
+    for(int x = 0; x < BMP_WIDTH; x++) {
+        for(int y = 0; y < BMP_HEIGHT; y++) {
+            if(img[x][y] > max) {
+                max = img[x][y];
+            }
+        }
+    }
+    return max;
+}
+
+void removeLow(unsigned char img[BMP_WIDTH][BMP_HEIGHT]) {
+    for(int x = 0; x < BMP_WIDTH; x++) {
+        for(int y = 0; y < BMP_HEIGHT; y++) {
+            if(img[x][y] < 20) {
+                img[x][y] = 0;
+            }
+        }
+    }
+}
+
+void findAllMaximum(unsigned char img[BMP_WIDTH][BMP_HEIGHT]) {
+    
+    for(int x = 0; x < BMP_WIDTH; x++) {
+        for(int y = 0; y < BMP_HEIGHT; y++) {
+            int max = 1;
+            if(!img[x][y]) {
+                continue;
+            }
+            for(int dx = -1; dx <=1; dx++) {
+                if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
+                    { // Check if on x-edge
+                        continue;
+                    }
+                for(int dy = -1; dy <= 1; dy++) {
+                    if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
+                    { // Check if on y-edge
+                        continue;
+                    }
+                    if(img[x + dx][y + dy] > img[x][y]) {
+                        max = 0;
+                    }
+                }
+            }
+            if(max) {
+                markCell(x,y);
+            }
+
+        }
+    }
+    
+
+
+}
+
+
 void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS], unsigned char grey_image[BMP_WIDTH][BMP_HEIGHT])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
@@ -34,12 +93,14 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
     //     {4, 3, 4}
     // };
     char changed = 1;
+    int i = 0;
     while (changed)
     {
+        i++;
         changed = 0;
 
         unsigned char newDist[BMP_WIDTH][BMP_HEIGHT];
-
+        //Allocate ram dynamically to keep track of which pixels no longer change
         for (int i = 0; i < BMP_WIDTH; i++)
         {
             for (int j = 0; j < BMP_HEIGHT; j++)
@@ -86,7 +147,9 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                 dist[i][j] = newDist[i][j];
             }
         }
+        
     }
+    printf("%i iterations\n", i);
 }
 
 // Blurs the greyscale_image using a gaussian filter
@@ -193,7 +256,7 @@ unsigned char otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 
     // Loops through histogram and performs Otsu Method:
     int totalPixels = BMP_WIDTH * BMP_HEIGHT;
-    for (unsigned char i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++)
     {
         wB = wB + histogram[i];
         if (wB == 0)
@@ -228,7 +291,7 @@ void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char thr
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            img[i][j] = img[i][j] >= threshold_value ? 255 : 0;
+            img[i][j] = img[i][j] > threshold_value ? 255 : 0;
         }
     }
 }

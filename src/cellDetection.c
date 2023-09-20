@@ -161,6 +161,9 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
+            // if(!img[x][y]) {
+            //     continue;
+            // }
             // Check exclusion border first
             if (excludeCell(img, x, y))
             {
