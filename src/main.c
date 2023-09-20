@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     // findAllMaximum(greyscale_image);
     // write_bitmap(input_image, "../out/maximum.bmp");
 
-    for (int i = 6; i <= 10; i++)
+    for (int i = 1; i <= 10; i++)
     {
         int totalCells;
 
@@ -40,10 +40,6 @@ int main(int argc, char **argv)
 
         // Calculate the distance transform of the binary image and threshold using otsu's method
         distanceTransform(greyscale_image);
-        removeLow(greyscale_image);
-        printf("max is %i and thresh is %i ", max(greyscale_image), otsu_threshold(greyscale_image));
-        formatOutputImage(greyscale_image, output_image);
-        write_bitmap(output_image, "../out/removeLow.bmp");
         binaryThreshold(greyscale_image, otsu_threshold(greyscale_image));
 
         // Total time for pre-processing

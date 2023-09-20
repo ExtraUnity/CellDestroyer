@@ -93,10 +93,11 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
 
     unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
     char fileName[256];
+    unsigned char blackArea[BMP_WIDTH][BMP_HEIGHT] = {0};
     while (hasEroded)
     {
         hasEroded = 0;
-        totalCells += detectCells(img);
+        totalCells += detectCells(img, blackArea);
         erosionNumber++;
         hasEroded = erode(img, erodedImage);
         // Save erosion image to file and detect cells

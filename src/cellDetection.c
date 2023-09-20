@@ -153,7 +153,7 @@ int cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     return 0;
 }
 
-int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
+int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackArea[BMP_WIDTH][BMP_HEIGHT])
 {
     int cellsFound = 0;
     // Loop through all pixels
@@ -161,9 +161,9 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            // if(!img[x][y]) {
-            //     continue;
-            // }
+            if(blackArea[x][y]) {
+                continue;
+            }
             // Check exclusion border first
             if (excludeCell(img, x, y))
             {
@@ -171,13 +171,14 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
             }
             if (cellInFrame(img, x, y))
             {
-
+                
                 // Marks the cells with a red cross
                 markCell(x, y);
                 //printf("x: %i, y: %i \n", x, y);
                 removeCell(img, x, y);
                 cellsFound++;
             }
+            blackArea[x][y] = 1;
         }
     }
     return cellsFound;

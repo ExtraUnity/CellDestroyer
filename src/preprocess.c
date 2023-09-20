@@ -291,7 +291,7 @@ void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char thr
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            img[i][j] = img[i][j] > threshold_value ? 255 : 0;
+            img[i][j] = img[i][j] >= threshold_value ? 255 : 0;
         }
     }
 }
