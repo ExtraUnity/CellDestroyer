@@ -20,7 +20,7 @@ int main(int argc, char **argv)
     // findAllMaximum(greyscale_image);
     // write_bitmap(input_image, "../out/maximum.bmp");
 
-    for (int i = 1; i <= 10; i++)
+    for (int i = 9; i <= 10; i++)
     {
         int totalCells;
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
 
         // Save image to file
-        snprintf(buf, 48, "../out/%iHARDfinal.bmp", i);
+        snprintf(buf, 48, "../out/%iHARDFinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }

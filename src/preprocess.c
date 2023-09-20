@@ -87,27 +87,30 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         {-1, 11, -1, 11, -1},
     };
 
-    // unsigned char mask[3][3] = {
+    // unsigned char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
     //     {4, 3, 4},
     //     {3, 0, 3},
     //     {4, 3, 4}
     // };
     char changed = 1;
-    int i = 0;
     while (changed)
     {
-        i++;
         changed = 0;
 
         unsigned char newDist[BMP_WIDTH][BMP_HEIGHT];
-        //Allocate ram dynamically to keep track of which pixels no longer change
         for (int i = 0; i < BMP_WIDTH; i++)
         {
             for (int j = 0; j < BMP_HEIGHT; j++)
             {
+                if(!dist[i][j]) {
+                    continue;
+                }
+                
+                
                 unsigned char min = 255;
                 unsigned char oldVal = dist[i][j];
-                for (char ky = -2; ky <= 2; ky++)
+                
+                for (char ky = -(DIST_MASK_SIZE-1)/2; ky <= (DIST_MASK_SIZE-1)/2; ky++)
                 {
 
                     if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
@@ -115,9 +118,9 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                         continue;
                     }
 
-                    for (char kx = -2; kx <= 2; kx++)
+                    for (char kx =  -(DIST_MASK_SIZE-1)/2; kx <= (DIST_MASK_SIZE-1)/2; kx++)
                     {
-                        if (mask[kx + 2][ky + 2] == -1)
+                        if (mask[kx + (DIST_MASK_SIZE-1)/2][ky + (DIST_MASK_SIZE-1)/2] == -1)
                         {
                             continue;
                         }
@@ -126,7 +129,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                             continue;
                         }
 
-                        int val = dist[i + kx][j + ky] + mask[kx + 2][ky + 2];
+                        int val = dist[i + kx][j + ky] + mask[kx + (DIST_MASK_SIZE-1)/2][ky + (DIST_MASK_SIZE-1)/2];
                         if (val < min)
                         {
                             min = val;
@@ -149,7 +152,6 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         }
         
     }
-    printf("%i iterations\n", i);
 }
 
 // Blurs the greyscale_image using a gaussian filter
