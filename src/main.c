@@ -26,8 +26,25 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
     }
 }
 
+int max(unsigned char arr[BMP_WIDTH][BMP_HEIGHT])
+{
+    int max = 0;
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            if (arr[i][j] > max)
+            {
+                max = arr[i][j];
+            }
+        }
+    }
+    return max;
+}
+
 // Computes the distance transform of the binary image using parallel computing
-void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
+//Based on Borgefors, G. (1986). Distance transformations in digital images. Computer Vision, Graphics, and Image Processing
+void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT], unsigned char binary[BMP_WIDTH][BMP_HEIGHT])
 {
 
     // initialize dist array
@@ -35,7 +52,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            dist[i][j] = greyscale_image[i][j] == 0 ? 0 : 255;
+            dist[i][j] = binary[i][j] == 0 ? 0 : 255;
         }
     }
 
@@ -75,14 +92,15 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
 
                     for (int kx = -2; kx <= 2; kx++)
                     {
-                        if(mask[kx + 2][ky + 2] == -1) {
+                        if (mask[kx + 2][ky + 2] == -1)
+                        {
                             continue;
                         }
                         if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
                         { // Check if on x-edge
                             continue;
                         }
-                        
+
                         int val = dist[i + kx][j + ky] + mask[kx + 2][ky + 2];
                         if (val < min)
                         {
@@ -105,19 +123,18 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
             }
         }
     }
-
 }
 
 // Blurs the greyscale_image using a gaussian filter
-void gaussianBlur()
+void gaussianBlur(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 {
     unsigned char blurred[BMP_WIDTH][BMP_HEIGHT];
 
     int kernel[3][3] = {
         // the kernel to be used
-        {1, 2, 1},
-        {2, 4, 2},
-        {1, 2, 1},
+        {-1, -2, -1},
+        {-2, 24, -2},
+        {-1, -2, -1},
     };
 
     // Copy original image to working image
@@ -125,7 +142,7 @@ void gaussianBlur()
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            blurred[i][j] = greyscale_image[i][j];
+            blurred[i][j] = img[i][j];
         }
     }
 
@@ -135,7 +152,7 @@ void gaussianBlur()
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
             int sum = 0;     // The weighted sum of the pixels and surrounding area
-            int weight = 16; // the total weight of the kernel
+            int weight = 12; // the total weight of the kernel
 
             // Apply kernel for selected pixel
             for (int kx = -1; kx <= 1; kx++)
@@ -157,7 +174,7 @@ void gaussianBlur()
                     }
 
                     // compute the weighted sum
-                    sum += greyscale_image[x + kx][y + ky] * kernel[kx + 1][ky + 1];
+                    sum += img[x + kx][y + ky] * kernel[kx + 1][ky + 1];
                 }
             }
 
@@ -166,7 +183,7 @@ void gaussianBlur()
             // printf("before %i    after %i\n",greyscale_image[x][y],average);
 
             // set the brightness of the pixel
-            blurred[x][y] = average;
+            blurred[x][y] = average < 0 ? 0 : average;
         }
     }
 
@@ -175,7 +192,7 @@ void gaussianBlur()
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            greyscale_image[i][j] = blurred[i][j];
+            img[i][j] = blurred[i][j];
         }
     }
 }
@@ -227,7 +244,7 @@ int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
         muF = (sum - sumB) / wF;
 
         // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
-        double varianceBetween = (double)wB * wF * pow((muB - muF), 2) / (wB + wF);
+        double varianceBetween = (double)wB * wF * pow((muB - muF), 2);
         if (varianceBetween > maxVariance)
         {
             maxVariance = varianceBetween;
@@ -268,6 +285,39 @@ void markCell(int x, int y)
             input_image[x][y + dy][0] = color[0];
             input_image[x][y + dy][1] = color[1];
             input_image[x][y + dy][2] = color[2];
+        }
+    }
+}
+
+void findAllMaximum(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
+{
+    int thresh = otsu_threshold(img);
+    for (int i = 1; i < BMP_WIDTH - 1; i++)
+    {
+        for (int j = 1; j < BMP_HEIGHT - 1; j++)
+        {
+
+            char val = img[i][j];
+            if (val == 0)
+            {
+                continue;
+            }
+            char max = 1;
+            for (int dx = -1; dx <= 1; dx++)
+            {
+                for (int dy = -1; dy <= 1; dy++)
+                {
+                    if (val < img[i + dx][j + dy] || val < thresh)
+                    {
+                        max = 0;
+                    }
+                }
+            }
+
+            if (max)
+            {
+                markCell(i, j);
+            }
         }
     }
 }
@@ -410,15 +460,9 @@ void detectCells()
 
                 // Marks the cells with a red cross
                 markCell(x, y);
+                //printf("x: %i, y: %i \n", x, y);
                 removeCell(x, y);
                 totalCells++;
-                /*
-                 *
-                 * INCREMENT COUNTER,
-                 * ADD COORDINATES TO ARRAY
-                 * ADD RED CROSS TO OUTPUT IMAGE (in-progress)
-                 *
-                 */
             }
         }
     }
@@ -569,7 +613,8 @@ int main(int argc, char **argv)
     //     }
     //     printf("\n");
     // }
-    //Load image from file
+
+    // Load image from file
 
     for (int i = 1; i <= 10; i++)
     {
@@ -593,16 +638,24 @@ int main(int argc, char **argv)
             }
         }
         // Blur the image slighty to reduce brightness of outer pixels
-        gaussianBlur();
+        // gaussianBlur();
         /*
         Find all cells
         */
-        binaryThreshold(greyscale_image, otsu_threshold(greyscale_image)); // Change to 90 to get the previos "Standard" threshold
+        binaryThreshold(greyscale_image, 90); // Change to 90 to get the previos "Standard" threshold
         unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
-        distanceTransform(dist);
+        distanceTransform(dist, greyscale_image);
         binaryThreshold(dist, otsu_threshold(dist));
         formatOutputImage(dist);
         write_bitmap(output_image, "../out/distThresh.bmp");
+        // distanceTransform(dist, dist);
+        // gaussianBlur(dist);
+        // // findAllMaximum(dist);
+        // formatOutputImage(dist);
+        // write_bitmap(output_image, "../out/distThresh2.bmp");
+        // binaryThreshold(dist, otsu_threshold(dist));
+        // formatOutputImage(dist);
+        // write_bitmap(output_image, "../out/distThresh3.bmp");
 
         for (int i = 0; i < BMP_WIDTH; i++)
         {
@@ -614,13 +667,14 @@ int main(int argc, char **argv)
         end = clock();
         cpu_time_used = end - start;
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+
         erodeImage();
         end = clock();
         cpu_time_used = end - start;
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
         formatOutputImage(greyscale_image);
         // Save image to file
-        snprintf(buf, 48, "../out/%iHARDfinal.bmp", i);
+        snprintf(buf, 48, "../out/%ifinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
