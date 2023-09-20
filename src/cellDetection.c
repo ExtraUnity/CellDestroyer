@@ -33,10 +33,10 @@ void markCell(int x, int y)
 }
 
 // Check the four borders for white pixels
-int excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
+char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
 {
     // Check left exclusion border
-    for (int dy = -6; dy <= 7; dy++)
+    for (char dy = -6; dy <= 7; dy++)
     {
         if (x - 6 < 0)
         {
@@ -53,7 +53,7 @@ int excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
         }
     }
     // Check right exclusion border
-    for (int dy = -6; dy <= 7; dy++)
+    for (char dy = -6; dy <= 7; dy++)
     {
         if (x + 7 > BMP_WIDTH - 1)
         {
@@ -71,7 +71,7 @@ int excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     }
 
     // Check top exclusion border
-    for (int dx = -6; dx <= 7; dx++)
+    for (char dx = -6; dx <= 7; dx++)
     {
         if (y - 6 < 0)
         {
@@ -89,7 +89,7 @@ int excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     }
 
     // Check bottom exclusion border
-    for (int dx = -6; dx <= 7; dx++)
+    for (char dx = -6; dx <= 7; dx++)
     {
         if (y + 7 > BMP_HEIGHT - 1)
         {

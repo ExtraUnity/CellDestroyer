@@ -32,7 +32,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
     //     {3, 0, 3},
     //     {4, 3, 4}
     // };
-    int changed = 1;
+    char changed = 1;
     while (changed)
     {
         changed = 0;
@@ -43,9 +43,9 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         {
             for (int j = 0; j < BMP_HEIGHT; j++)
             {
-                int min = 10000;
-                int oldVal = dist[i][j];
-                for (int ky = -2; ky <= 2; ky++)
+                unsigned char min = 255;
+                unsigned char oldVal = dist[i][j];
+                for (char ky = -2; ky <= 2; ky++)
                 {
 
                     if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
@@ -53,7 +53,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                         continue;
                     }
 
-                    for (int kx = -2; kx <= 2; kx++)
+                    for (char kx = -2; kx <= 2; kx++)
                     {
                         if (mask[kx + 2][ky + 2] == -1)
                         {
@@ -161,7 +161,7 @@ void gaussianBlur(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 }
 
 // Better threshold value based on Otsu Method
-int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
+unsigned char otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 {
 
     // Initialize histogram of size 256 and store each pixels greyscale intensity value (0-255):
@@ -188,11 +188,11 @@ int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
     int wF = 0;               // Num of pixels in Foreground (white) out of total pixels
     int muB, muF;             // Average of wB and wF respectively
     double maxVariance = 0.0; // "between class" maxVariance
-    int threshold = 0;
+    unsigned char threshold = 0;
 
     // Loops through histogram and performs Otsu Method:
     int totalPixels = BMP_WIDTH * BMP_HEIGHT;
-    for (int i = 0; i < 256; i++)
+    for (unsigned char i = 0; i < 256; i++)
     {
         wB = wB + histogram[i];
         if (wB == 0)
@@ -221,20 +221,13 @@ int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 }
 
 // Binary Threshold based on global value "threshold_value"
-void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int threshold_value)
+void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char threshold_value)
 {
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            if (img[i][j] >= threshold_value)
-            {
-                img[i][j] = 255; // white
-            }
-            if (img[i][j] < threshold_value)
-            {
-                img[i][j] = 0; // black
-            }
+            img[i][j] = img[i][j] >= threshold_value ? 255 : 0;
         }
     }
 }

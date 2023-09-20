@@ -89,8 +89,7 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
 {
     int totalCells = 0;
     int erosionNumber = 0;
-    int hasEroded = 1;
-    int hasDilated;
+    char hasEroded = 1;
 
     unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
     char fileName[256];

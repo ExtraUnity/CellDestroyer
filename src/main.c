@@ -13,8 +13,8 @@ int main(int argc, char **argv)
         int totalCells;
 
         //Load image to input_image
-        char buf[48];
-        snprintf(buf, 48, "../assets/samples/hard/%iHARD.bmp", i);
+        char buf[256];
+        snprintf(buf, 256, "../assets/samples/hard/%iHARD.bmp", i);
         read_bitmap(buf, input_image);
 
         //Start clock for time analysis
@@ -39,6 +39,7 @@ int main(int argc, char **argv)
         /*
         Find all cells - hopefully :D
         */
+        
         totalCells = erodeImage(greyscale_image, output_image);
 
         //Total time of algorithm
@@ -47,7 +48,6 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
 
         // Save image to file
-        formatOutputImage(greyscale_image, output_image);
         snprintf(buf, 48, "../out/%ifinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
