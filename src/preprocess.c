@@ -193,7 +193,7 @@ unsigned char otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 
     // Loops through histogram and performs Otsu Method:
     int totalPixels = BMP_WIDTH * BMP_HEIGHT;
-    for (unsigned char i = 0; i < 256; i++)
+    for (int i = 0; i < 256; i++)
     {
         wB = wB + histogram[i];
         if (wB == 0)
