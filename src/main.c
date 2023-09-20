@@ -54,7 +54,7 @@ int otsu_threshold() {
     muF = (sum - sumB) / wF;
 
     // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
-    double varianceBetween = (double) wB * wF * pow((muB - muF),2)/ (wB + wF);
+    double varianceBetween = (double) wB * wF * pow((muB - muF, 2.0),2)/ (wB + wF);
     if (varianceBetween > maxVariance) {
       maxVariance = varianceBetween;
       threshold = i;
@@ -305,7 +305,7 @@ void erodeImage() {
 
 // Binary Threshold based on global value "threshold_value"
 void binaryThreshold() {
-  threshold_value = otsu_threshold(); // Change to 90 to get the previos "Standard" threshold
+  threshold_value = 90; //otsu_threshold(); // Change to 90 to get the previos "Standard" threshold
   for (int i = 0; i < BMP_WIDTH; i++) {
     for (int j = 0; j < BMP_HEIGHT; j++) {
       if (greyscale_image[i][j] >= threshold_value) {
