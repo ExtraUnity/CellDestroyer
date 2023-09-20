@@ -1,6 +1,6 @@
 #include "cbmp.h"
 
-void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT])
+void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
     {

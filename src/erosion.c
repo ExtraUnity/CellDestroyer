@@ -36,7 +36,7 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
 
             int erode = 0;
 
-            // Apply kernel for selected pixel
+            //Apply kernel for selected pixel
             for (int kx = -1; kx <= 1; kx++)
             {
                 if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
@@ -104,7 +104,7 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
         if (hasEroded)
         {
             sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
-            formatOutputImage(erodedImage);
+            formatOutputImage(erodedImage, output_image);
             write_bitmap(output_image, fileName);
         }
     }

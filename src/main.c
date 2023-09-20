@@ -1,4 +1,5 @@
 #include "cbmp.h"
+#include "init.c"
 #include "preprocess.c"
 #include "erosion.c"
 #include <stdlib.h>
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
         printf("%fms ", cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
 
         // Save image to file
-        formatOutputImage(greyscale_image);
+        formatOutputImage(greyscale_image, output_image);
         snprintf(buf, 48, "../out/%ifinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);

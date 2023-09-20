@@ -7,7 +7,7 @@ void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
         {
-            greyscale_image[i][j] =
+            grey_image[i][j] =
                 (input_image[i][j][0] + input_image[i][j][1] + input_image[i][j][2]) /
                 3;
         }
@@ -19,7 +19,7 @@ void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS
 void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
 {
 
-    unsigned char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
+    char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
         {-1, 11, -1, 11, -1},
         {11, 7, 5, 7, 11},
         {-1, 5, 0, 5, -1},
@@ -207,7 +207,7 @@ int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
         muF = (sum - sumB) / wF;
 
         // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
-        double varianceBetween = (double)wB * wF * pow((muB - muF), 2);
+        double varianceBetween = (double)wB * wF * ((muB - muF)*(muB - muF));
         if (varianceBetween > maxVariance)
         {
             maxVariance = varianceBetween;
