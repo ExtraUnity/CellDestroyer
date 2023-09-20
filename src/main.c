@@ -595,27 +595,6 @@ void binaryThreshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int threshold_val
 int main(int argc, char **argv)
 {
 
-    if (argc != 3)
-    {
-        fprintf(stderr, "Usage: %s <output file path> <output file path>\n",
-                argv[0]);
-        exit(1);
-    }
-
-    // unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
-    // distanceTransform(dist);
-    // unsigned char distString[921500] = "";
-    // for (int i = 0; i < BMP_WIDTH; i++)
-    // {
-    //     for (int j = 0; j < BMP_HEIGHT; j++)
-    //     {
-    //         printf("%i ", dist[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
-    // Load image from file
-
     for (int i = 1; i <= 10; i++)
     {
         totalCells = 0;
