@@ -244,7 +244,7 @@ int otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
         muF = (sum - sumB) / wF;
 
         // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
-        double varianceBetween = (double)wB * wF * pow((muB - muF), 2);
+        double varianceBetween = (double)wB * wF * ((muB - muF)*(muB - muF));
         if (varianceBetween > maxVariance)
         {
             maxVariance = varianceBetween;
@@ -602,17 +602,17 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
+    unsigned char dist[BMP_WIDTH][BMP_HEIGHT];
     // distanceTransform(dist);
-    // unsigned char distString[921500] = "";
-    // for (int i = 0; i < BMP_WIDTH; i++)
-    // {
-    //     for (int j = 0; j < BMP_HEIGHT; j++)
-    //     {
-    //         printf("%i ", dist[i][j]);
-    //     }
-    //     printf("\n");
-    // }
+    unsigned char distString[921500] = "";
+    for (int i = 0; i < BMP_WIDTH; i++)
+    {
+        for (int j = 0; j < BMP_HEIGHT; j++)
+        {
+            printf("%i ", dist[i][j]);
+        }
+        printf("\n");
+    }
 
     // Load image from file
 
@@ -648,14 +648,14 @@ int main(int argc, char **argv)
         binaryThreshold(dist, otsu_threshold(dist));
         formatOutputImage(dist);
         write_bitmap(output_image, "../out/distThresh.bmp");
-        // distanceTransform(dist, dist);
-        // gaussianBlur(dist);
-        // // findAllMaximum(dist);
-        // formatOutputImage(dist);
-        // write_bitmap(output_image, "../out/distThresh2.bmp");
-        // binaryThreshold(dist, otsu_threshold(dist));
-        // formatOutputImage(dist);
-        // write_bitmap(output_image, "../out/distThresh3.bmp");
+        distanceTransform(dist, dist);
+        gaussianBlur(dist);
+        // findAllMaximum(dist);
+        formatOutputImage(dist);
+        write_bitmap(output_image, "../out/distThresh2.bmp");
+        binaryThreshold(dist, otsu_threshold(dist));
+        formatOutputImage(dist);
+        write_bitmap(output_image, "../out/distThresh3.bmp");
 
         for (int i = 0; i < BMP_WIDTH; i++)
         {
