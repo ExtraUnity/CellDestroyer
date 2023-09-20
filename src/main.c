@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 
         //Load image to input_image
         char buf[48];
-        snprintf(buf, 48, "../assets/samples/hard/%iHARD.bmp", i);
+        snprintf(buf, 48, "../assets/samples/easy/%iEASY.bmp", i);
         read_bitmap(buf, input_image);
 
         //Start clock for time analysis
