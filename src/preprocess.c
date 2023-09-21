@@ -162,18 +162,27 @@ void gaussianBlur(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
 }
 
 // Better threshold value based on Otsu Method
-unsigned char otsu_threshold(unsigned char img[BMP_WIDTH][BMP_HEIGHT])
+unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
 {
 
-    // Initialize histogram of size 256 and store each pixels greyscale intensity value (0-255):
+    // Initialize histogram of size 256 with 0 in all elements
     int histogram[256] = {0};
     for (int x = 0; x < BMP_WIDTH; x++)
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            histogram[img[x][y]]++;
+            //Get the greyscale intensity level of each pixel
+            int grey_level = greyscale_img[x][y];
+
+            //Count the number of pixel with the greyscale intensity and add it to histogram
+            histogram[grey_level]++;
+            if(grey_level > 80) {
+            printf("num of this greylevel %i value %i \n",grey_level,histogram[grey_level]);
+
+            }
         }
-    }
+    } //Result is a histrogram with greyscale-intensity at x-axis and num of pixel with corresponding intensity at "y-axis".
+ 
 
     // Calculates the sum of (greyscale intensity * num of pixel with this intensity).
     // Makes it easier to calculate muB and muF later.
