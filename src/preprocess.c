@@ -176,12 +176,17 @@ unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
 
             //Count the number of pixel with the greyscale intensity and add it to histogram
             histogram[grey_level]++;
-            if(grey_level > 80) {
-            printf("num of this greylevel %i value %i \n",grey_level,histogram[grey_level]);
 
+            /*
+            TEST: tæller antallet pixel med forskellige greyscale_niveauer på hele billedet 950x950,
+            for at undgå spam med alle de sorte baggrund, kigger jeg kun på de "lyse" grå pixel
+            */
+            if(grey_level > 80) {
+            printf("greylevel-value: %i and count of this value %i \n",grey_level,histogram[grey_level]);
             }
         }
-    } //Result is a histrogram with greyscale-intensity at x-axis and num of pixel with corresponding intensity at "y-axis".
+    } /*Result is a histrogram with greyscale-intensity (0-255) 
+        at x-axis and num of pixel with the corresponding intensity at "y-axis".*/
  
 
     // Calculates the sum of (greyscale intensity * num of pixel with this intensity).
