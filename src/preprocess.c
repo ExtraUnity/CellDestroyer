@@ -176,28 +176,19 @@ unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
 
             //Count the number of pixel with the greyscale intensity and add it to histogram
             histogram[grey_level]++;
-
-            /*
-            TEST: tæller antallet pixel med forskellige greyscale_niveauer på hele billedet 950x950,
-            for at undgå spam med alle de sorte baggrund, kigger jeg kun på de "lyse" grå pixel
-            */
-            if(grey_level > 80) {
-            printf("greylevel-value: %i and count of this value %i \n",grey_level,histogram[grey_level]);
-            }
         }
-    } /*Result is a histrogram with greyscale-intensity (0-255) 
-        at x-axis and num of pixel with the corresponding intensity at "y-axis".*/
- 
+    } 
 
-    // Calculates the sum of (greyscale intensity * num of pixel with this intensity).
+    // Calculates the sum of greyscale intensity (p) * num of pixel with this intensity (histrogram[p]) ).
     // Makes it easier to calculate muB and muF later.
     int sum = 0;
     for (int p = 0; p < 256; p++)
     {
-        sum += p * histogram[p];
+        sum = sum + p * histogram[p];
     }
 
     // The variables used in Otsu Method/Formula
+    int sumW = 0;
     int sumB = 0;
     int wB = 0;               // Num of pixels in Background (black) out of total pixels
     int wF = 0;               // Num of pixels in Foreground (white) out of total pixels
@@ -205,33 +196,35 @@ unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
     double maxVariance = 0.0; // "between class" maxVariance
     unsigned char threshold = 0;
 
-    // Loops through histogram and performs Otsu Method:
+    // Loops through histogram values
     int totalPixels = BMP_WIDTH * BMP_HEIGHT;
     for (int i = 0; i < 256; i++)
     {
+        //Background pixels
         wB = wB + histogram[i];
-        if (wB == 0)
-            continue;
+        if (wB == 0) continue;
 
+        //Foreground pixels (rest)
         wF = totalPixels - wB;
-        if (wF == 0)
-            break;
+        if (wF == 0) break;
 
         sumB += i * histogram[i];
+        sumW = (sum-sumB);
+
         muB = sumB / wB;
-        muF = (sum - sumB) / wF;
+        muF = sumW / wF;
 
         // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
         double varianceBetween = (double)wB * wF * ((muB - muF)*(muB - muF));
         if (varianceBetween > maxVariance)
         {
-            maxVariance = varianceBetween;
+            maxVariance = varianceBetween; //Ensures calculated variance is the desired maxvariance
             threshold = i;
+                //printf("value: %d \n", threshold);
+
         }
     }
-
-    // Change the global variable of threshold value
-    // printf("\nBinary Threshold Value: %d\n", threshold);
+    //printf("\nFinal Threshold Value: %d\n", threshold);
     return threshold;
 }
 
