@@ -176,6 +176,7 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackAre
                 //printf("x: %i, y: %i \n", x, y);
                 removeCell(img, x, y);
                 cellsFound++;
+                printf("Cell found at: [%i; %i]\n", x, y);
             }
             blackArea[x][y] = 1;
         }
