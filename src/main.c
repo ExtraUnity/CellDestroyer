@@ -4,7 +4,6 @@
 #include "erosion.c"
 #include <stdlib.h>
 #include <time.h>
-#define mode "EASY"
 int main(int argc, char **argv)
 {
     for (int i = 1; i <= 10; i++)
@@ -13,7 +12,7 @@ int main(int argc, char **argv)
 
         // Load image to input_image
         char buf[256];
-        snprintf(buf, 256, "../assets/samples/easy/%i%s.bmp", i, mode);
+        snprintf(buf, 256, "../assets/samples/easy/%iEASY.bmp", i);
         read_bitmap(buf, input_image);
 
         // Start clock for time analysis
@@ -47,7 +46,7 @@ int main(int argc, char **argv)
         printf("%fms  %fms ", preprocess_time * 1000.0 / CLOCKS_PER_SEC, cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
 
         // Save image to file
-        snprintf(buf, 48, "../out/%i%sfinal.bmp", i, mode);
+        snprintf(buf, 48, "../out/%iEASYfinal.bmp", i);
         write_bitmap(input_image, buf);
         printf("%i\n", totalCells);
     }
