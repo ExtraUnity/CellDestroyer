@@ -29,7 +29,7 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
             // If pixel is black then continue
-            if (img[x][y] == 0)
+            if (!img[x][y])
             {
                 continue;
             }

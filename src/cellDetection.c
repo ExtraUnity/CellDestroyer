@@ -38,7 +38,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     // Check left exclusion border
     for (char dy = -6; dy <= 7; dy++)
     {
-        if (x - 6 < 0)
+        if (x < 6)
         {
             break;
         }
@@ -55,7 +55,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     // Check right exclusion border
     for (char dy = -6; dy <= 7; dy++)
     {
-        if (x + 7 > BMP_WIDTH - 1)
+        if (x > BMP_WIDTH - 8)
         {
             break;
         }
@@ -73,7 +73,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     // Check top exclusion border
     for (char dx = -6; dx <= 7; dx++)
     {
-        if (y - 6 < 0)
+        if (y < 6)
         {
             break;
         }
@@ -143,9 +143,8 @@ int cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
                 continue;
             }
 
-            if (img[x + dx][y + dy] > 0)
+            if (img[x + dx][y + dy])
             {
-
                 return 1;
             }
         }
