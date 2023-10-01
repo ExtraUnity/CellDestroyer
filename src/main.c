@@ -39,15 +39,15 @@ int main(int argc, char **argv) {
 
     // Transform image to grey and threshold it using a experimentally found
     // 'low' threshold
-    greyTransform(input_image, greyscale_image);
-    binaryThreshold(greyscale_image, 90);
+    greyTransform(input_image, working_image);
+    binaryThreshold(working_image, 90);
 
     // Calculate the distance transform of the binary image and threshold
     // using otsu's method
-    distanceTransform(greyscale_image);
-    formatOutputImage(greyscale_image, output_image);
+    distanceTransform(working_image);
+    formatOutputImage(working_image, output_image);
     write_bitmap(output_image, "../out/dist.bmp");
-    binaryThreshold(greyscale_image, otsu_threshold(greyscale_image));
+    binaryThreshold(working_image, otsu_threshold(working_image));
 
     // Total time for pre-processing
     end = clock();
@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     Find all cells - hopefully :D
     */
 
-    totalCells = erodeImage(greyscale_image, output_image);
+    totalCells = erodeImage(working_image, output_image);
     // Total time of algorithm
     end = clock();
     cpu_time_used = end - start;
