@@ -1,8 +1,20 @@
 #include "cbmp.h"
 #include <ctype.h>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+void strToUpper(char *str) {
+  while (*str) {
+    *str = toupper((unsigned char)*str);
+    str++;
+  }
+}
+
+void strToLower(char *str) {
+  while (*str) {
+    *str = tolower((unsigned char)*str);
+    str++;
+  }
+}
+
 
 //Expand 1 channel to 3 channels for writing the bitmap
 void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
@@ -18,20 +30,4 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char
             }
         }
     }
-}
-
-//Convert string to lowercase
-char* strlwr(unsigned char str[]) {
-    for(int i = 0; i < strlen(str); i++) {
-        str[i] = tolower(str[i]);
-    }
-    return str;
-}
-
-//Convert string to uppercase
-char* strupr(unsigned char str[]) {
-    for(int i = 0; i< strlen(str); i++) {
-        str[i] = toupper(str[i]);
-    }
-    return str;
 }

@@ -1,67 +1,73 @@
 #include "cbmp.h"
+#include "erosion.c"
 #include "init.c"
 #include "preprocess.c"
-#include "erosion.c"
-#include <stdlib.h>
-#include <time.h>
-#include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
-int main(int argc, char **argv)
-{
-    // Check if program is called correctly
-    if (argc != 4)
-    {
-        fprintf(stderr, "Usage: %s <difficulty mode> <start index (1-10)> <end index (1-10)>\n", argv[0]);
-        exit(1);
-    }
+int main(int argc, char **argv) {
+  if (argc != 4) {
+    printf("Usage: %s <directory> <start> <end>\n", argv[0]);
+    return 1;
+  }
 
-    //Compute for all selected images
-    char *mode = argv[1];
-    for (int i = atoi(argv[2]); i <= atoi(argv[3]); i++)
-    {
-        int totalCells;
-        // Load image to input_image
-        char buf[256];
-        char *copy;
-        strcpy(copy, mode);
-        snprintf(buf, 256, "../assets/samples/%s/%i%s.bmp", strlwr(copy), i, strupr(mode));
-        read_bitmap(buf, input_image);
+  char *directory = argv[1];
+  int start = atoi(argv[2]);
+  int end = atoi(argv[3]);
 
-        // Start clock for time analysis
-        clock_t start, end;
-        double cpu_time_used;
-        double preprocess_time;
-        start = clock();
+  // Convert the first argument (directory name) to uppercase
+  char uppercasedDirectory[256];
+  strcpy(uppercasedDirectory, directory);
+  strToUpper(uppercasedDirectory);
+  strToLower(directory);
 
-        // Transform image to grey and threshold it using a experimentally found 'low' threshold
-        greyTransform(input_image, working_image);
-        binaryThreshold(working_image, 90);
+  for (int i = start; i <= end; i++) {
+    int totalCells;
 
-        // Calculate the distance transform of the binary image and threshold using otsu's method
-        distanceTransform(working_image);
-        formatOutputImage(working_image, output_image);
-        write_bitmap(output_image, "../out/dist.bmp");
-        binaryThreshold(working_image, otsu_threshold(working_image));
+    // Load image to input_image
+    char buf[256];
+    snprintf(buf, 256, "../assets/samples/%s/%i%s.bmp", directory, i,uppercasedDirectory);
+    read_bitmap(buf, input_image);
 
-        // Total time for pre-processing
-        end = clock();
-        preprocess_time = end - start;
+    // Start clock for time analysis
+    clock_t start, end;
+    double cpu_time_used;
+    double preprocess_time;
+    start = clock();
 
-        /*
-        Find all cells - hopefully :D
-        */
+    // Transform image to grey and threshold it using a experimentally found
+    // 'low' threshold
+    greyTransform(input_image, greyscale_image);
+    binaryThreshold(greyscale_image, 90);
 
-        totalCells = erodeImage(working_image, output_image);
-        // Total time of algorithm
-        end = clock();
-        cpu_time_used = end - start;
-        printf("%fms  %fms ", preprocess_time * 1000.0 / CLOCKS_PER_SEC, cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+    // Calculate the distance transform of the binary image and threshold
+    // using otsu's method
+    distanceTransform(greyscale_image);
+    formatOutputImage(greyscale_image, output_image);
+    write_bitmap(output_image, "../out/dist.bmp");
+    binaryThreshold(greyscale_image, otsu_threshold(greyscale_image));
 
-        // Save image to file
-        snprintf(buf, 48, "../out/%i%sfinal.bmp", i, strupr(mode));
-        write_bitmap(input_image, buf);
-        printf("%i\n", totalCells);
-    }
-    return 0;
+    // Total time for pre-processing
+    end = clock();
+    preprocess_time = end - start;
+
+    /*
+    Find all cells - hopefully :D
+    */
+
+    totalCells = erodeImage(greyscale_image, output_image);
+    // Total time of algorithm
+    end = clock();
+    cpu_time_used = end - start;
+    printf("%fms  %fms ", preprocess_time * 1000.0 / CLOCKS_PER_SEC,
+           cpu_time_used * 1000.0 / CLOCKS_PER_SEC);
+
+    // Save image to file
+    snprintf(buf, 48, "../out/%iEASYfinal.bmp", i);
+    write_bitmap(input_image, buf);
+    printf("%i\n", totalCells);
+  }
+  return 0;
 }
