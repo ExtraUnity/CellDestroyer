@@ -7,12 +7,6 @@
 #include <string.h>
 #include <time.h>
 
-void strToUpper(char *str) {
-  while (*str) {
-    *str = toupper((unsigned char)*str);
-    str++;
-  }
-}
 int main(int argc, char **argv) {
   if (argc != 4) {
     printf("Usage: %s <directory> <start> <end>\n", argv[0]);
@@ -27,6 +21,7 @@ int main(int argc, char **argv) {
   char uppercasedDirectory[256];
   strcpy(uppercasedDirectory, directory);
   strToUpper(uppercasedDirectory);
+  strToLower(directory);
 
   for (int i = start; i <= end; i++) {
     int totalCells;

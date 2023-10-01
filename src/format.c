@@ -1,4 +1,20 @@
 #include "cbmp.h"
+#include <ctype.h>
+
+void strToUpper(char *str) {
+  while (*str) {
+    *str = toupper((unsigned char)*str);
+    str++;
+  }
+}
+
+void strToLower(char *str) {
+  while (*str) {
+    *str = tolower((unsigned char)*str);
+    str++;
+  }
+}
+
 
 void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
 {
