@@ -2,6 +2,7 @@
 #include "cellDetection.c"
 #include "format.c"
 #include <stdio.h>
+#include <time.h>
 int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 {
     int erosionNumber = 0;
@@ -36,7 +37,7 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
 
             int erode = 0;
 
-            //Apply kernel for selected pixel
+            // Apply kernel for selected pixel
             for (int kx = -1; kx <= 1; kx++)
             {
                 if (x + kx < 0 || x + kx > BMP_WIDTH - 1)
@@ -89,24 +90,22 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
 {
     int totalCells = 0;
     int erosionNumber = 0;
-    char hasEroded = 1;
 
     unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
     char fileName[256];
     unsigned char blackArea[BMP_WIDTH][BMP_HEIGHT] = {0};
-    while (hasEroded)
+    while (erode(img, erodedImage))
     {
-        hasEroded = 0;
-        totalCells += detectCells(img, blackArea);
+
         erosionNumber++;
-        hasEroded = erode(img, erodedImage);
+        totalCells += detectCells(img, blackArea);
         // Save erosion image to file and detect cells
-        if (hasEroded)
-        {
-            sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
-            formatOutputImage(erodedImage, output_image);
-            write_bitmap(output_image, fileName);
-        }
+        // if (hasEroded)
+        // {
+        //     sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
+        //     formatOutputImage(erodedImage, output_image);
+        //     write_bitmap(output_image, fileName);
+        // }
     }
     return totalCells;
 }

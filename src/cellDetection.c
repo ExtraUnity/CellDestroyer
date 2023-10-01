@@ -1,5 +1,6 @@
 #include "cbmp.h"
 #include "init.c"
+#include <time.h>
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y)
 {
@@ -47,7 +48,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
-        if (img[x - 6][y + dy] == 255)
+        if (img[x - 6][y + dy])
         {
             return 1;
         }
@@ -64,14 +65,14 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
-        if (img[x + 7][y + dy] == 255)
+        if (img[x + 7][y + dy])
         {
             return 1;
         }
     }
 
     // Check top exclusion border
-    for (char dx = -6; dx <= 7; dx++)
+    for (char dx = -5; dx <= 6; dx++)
     {
         if (y < 6)
         {
@@ -82,14 +83,14 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
-        if (img[x + dx][y - 6] == 255)
+        if (img[x + dx][y - 6])
         {
             return 1;
         }
     }
 
     // Check bottom exclusion border
-    for (char dx = -6; dx <= 7; dx++)
+    for (char dx = -5; dx <= 6; dx++)
     {
         if (y + 7 > BMP_HEIGHT - 1)
         {
@@ -100,7 +101,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
-        if (img[x + dx][y + 7] == 255)
+        if (img[x + dx][y + 7])
         {
             return 1;
         }
@@ -160,7 +161,8 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackAre
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            if(blackArea[x][y]) {
+            if (blackArea[x][y])
+            {
                 continue;
             }
             // Check exclusion border first
@@ -170,13 +172,13 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackAre
             }
             if (cellInFrame(img, x, y))
             {
-                
+
                 // Marks the cells with a red cross
                 markCell(x, y);
-                //printf("x: %i, y: %i \n", x, y);
+                // printf("x: %i, y: %i \n", x, y);
                 removeCell(img, x, y);
                 cellsFound++;
-                printf("Cell found at: [%i; %i]\n", x, y);
+                // printf("Cell found at: [%i; %i]\n", x, y);
             }
             blackArea[x][y] = 1;
         }

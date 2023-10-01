@@ -1,5 +1,9 @@
 #include "cbmp.h"
+#include <ctype.h>
+#include <string.h>
 
+#include <stdio.h>
+#include <stdlib.h>
 void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
@@ -13,4 +17,18 @@ void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char
             }
         }
     }
+}
+
+char* strlwr(unsigned char str[]) {
+    for(int i = 0; i < strlen(str); i++) {
+        str[i] = tolower(str[i]);
+    }
+    return str;
+}
+
+char* strupr(unsigned char str[]) {
+    for(int i = 0; i< strlen(str); i++) {
+        str[i] = toupper(str[i]);
+    }
+    return str;
 }

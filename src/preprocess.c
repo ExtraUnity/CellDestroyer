@@ -2,9 +2,6 @@
 #include <math.h>
 #include <stdio.h>
 
-void markCell(int x, int y);
-
-
 void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS], unsigned char grey_image[BMP_WIDTH][BMP_HEIGHT])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
