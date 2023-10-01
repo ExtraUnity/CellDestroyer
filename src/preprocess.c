@@ -19,6 +19,7 @@ void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS
 void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
 {
 
+    //The mask which approximates euclidian distance
     char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
         {-1, 11, -1, 11, -1},
         {11, 7, 5, 7, 11},
@@ -28,6 +29,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
     };
 
     char changed = 1;
+    //iterate until no change happens
     while (changed)
     {
         changed = 0;
@@ -37,6 +39,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         {
             for (int j = 0; j < BMP_HEIGHT; j++)
             {
+                //no need to check black pixels
                 if (!dist[i][j])
                 {
                     continue;
@@ -45,6 +48,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                 unsigned char min = 255;
                 unsigned char oldVal = dist[i][j];
 
+                //Loop through mask
                 for (char ky = -(DIST_MASK_SIZE - 1) / 2; ky <= (DIST_MASK_SIZE - 1) / 2; ky++)
                 {
 
@@ -56,7 +60,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                     for (char kx = -(DIST_MASK_SIZE - 1) / 2; kx <= (DIST_MASK_SIZE - 1) / 2; kx++)
                     {
                         if (mask[kx + (DIST_MASK_SIZE - 1) / 2][ky + (DIST_MASK_SIZE - 1) / 2] == -1)
-                        {
+                        { //values with -1 are redundant
                             continue;
                         }
                         if (i + kx < 0 || i + kx > BMP_WIDTH - 1)
@@ -64,6 +68,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                             continue;
                         }
 
+                        //calculate distance
                         int val = dist[i + kx][j + ky] + mask[kx + (DIST_MASK_SIZE - 1) / 2][ky + (DIST_MASK_SIZE - 1) / 2];
                         if (val < min)
                         {
@@ -78,6 +83,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                 }
             }
         }
+        
         for (int i = 0; i < BMP_WIDTH; i++)
         {
             for (int j = 0; j < BMP_HEIGHT; j++)

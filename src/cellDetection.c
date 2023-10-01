@@ -33,14 +33,14 @@ void markCell(int x, int y)
     }
 }
 
-// Check the four borders for white pixels
+// Check the four sides of exclusion border for white pixels
 char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
 {
     // Check left exclusion border
     for (char dy = -6; dy <= 7; dy++)
     {
         if (x < 6)
-        {
+        { // avoid segmentation fault
             break;
         }
         if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
@@ -48,6 +48,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
+        // Return true if found a white pixel
         if (img[x - 6][y + dy])
         {
             return 1;
@@ -57,7 +58,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     for (char dy = -6; dy <= 7; dy++)
     {
         if (x > BMP_WIDTH - 8)
-        {
+        { // avoid segmentation fault
             break;
         }
         if (y + dy < 0 || y + dy > BMP_HEIGHT - 1)
@@ -65,6 +66,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
+        // Return true if found a white pixel
         if (img[x + 7][y + dy])
         {
             return 1;
@@ -75,7 +77,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     for (char dx = -5; dx <= 6; dx++)
     {
         if (y < 6)
-        {
+        { // avoid segmentation fault
             break;
         }
         if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
@@ -83,6 +85,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
+        // Return true if found a white pixel
         if (img[x + dx][y - 6])
         {
             return 1;
@@ -93,7 +96,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     for (char dx = -5; dx <= 6; dx++)
     {
         if (y + 7 > BMP_HEIGHT - 1)
-        {
+        { // avoid segmentation fault
             break;
         }
         if (x + dx < 0 || x + dx > BMP_WIDTH - 1)
@@ -101,6 +104,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             continue;
         }
 
+        // Return true if found a white pixel
         if (img[x + dx][y + 7])
         {
             return 1;
@@ -110,6 +114,7 @@ char excludeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     return 0;
 }
 
+//Remove cell from image
 void removeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
 {
     for (int dx = -5; dx <= 6; dx++)
@@ -124,12 +129,14 @@ void removeCell(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
             { // Check if on y-edge
                 continue;
             }
+            //Turn pixel black
             img[x + dx][y + dy] = 0;
         }
     }
 }
 
-int cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
+//Search in frame for a cell
+char cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
 {
     for (int dx = -5; dx <= 6; dx++)
     {
@@ -144,6 +151,7 @@ int cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
                 continue;
             }
 
+            //Return true if a white pixel is found
             if (img[x + dx][y + dy])
             {
                 return 1;
@@ -153,6 +161,8 @@ int cellInFrame(unsigned char img[BMP_WIDTH][BMP_HEIGHT], int x, int y)
     return 0;
 }
 
+
+//Search entire image for cells
 int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackArea[BMP_WIDTH][BMP_HEIGHT])
 {
     int cellsFound = 0;
@@ -177,7 +187,7 @@ int detectCells(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char blackAre
                 markCell(x, y);
                 removeCell(img, x, y);
                 cellsFound++;
-                //Print the cell coordinates
+                // Print the cell coordinates
                 printf("Cell found at: [%i; %i]\n", x, y);
             }
             blackArea[x][y] = 1;

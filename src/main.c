@@ -16,6 +16,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    //Compute for all selected images
     char *mode = argv[1];
     for (int i = atoi(argv[2]); i <= atoi(argv[3]); i++)
     {

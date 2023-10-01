@@ -7,12 +7,13 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
     int erosionNumber = 0;
     int hasEroded = 0;
 
+    //The structuring element to be used
     int kernel[3][3] = {
         {0, 1, 0},
         {1, 1, 1},
         {0, 1, 0},
     };
-    // Copy original
+    // Copy original image to temporary array
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
@@ -26,12 +27,12 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            // If pixel is black then continue
+            // If pixel is black then it can't be eroded
             if (!img[x][y])
             {
                 continue;
             }
-
+            //Whether or not to erode pixel
             int erode = 0;
 
             // Apply kernel for selected pixel
@@ -64,7 +65,7 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
         }
     }
 
-    // Copy eroded image to working image
+    // Copy eroded image to original image
     for (int i = 0; i < BMP_WIDTH; i++)
     {
         for (int j = 0; j < BMP_HEIGHT; j++)
@@ -84,10 +85,13 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
     unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT];
     char fileName[256];
     unsigned char blackArea[BMP_WIDTH][BMP_HEIGHT] = {0};
+
+    //Erode until all black image
     while (erode(img, erodedImage))
     {
 
         erosionNumber++;
+        //detect cells after each erosion
         totalCells += detectCells(img, blackArea);
         // Save erosion image to file
         sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);

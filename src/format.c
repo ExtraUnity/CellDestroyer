@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//Expand 1 channel to 3 channels for writing the bitmap
 void formatOutputImage(unsigned char input[BMP_WIDTH][BMP_HEIGHT], unsigned char output_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS])
 {
     for (int i = 0; i < BMP_WIDTH; i++)
