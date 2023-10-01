@@ -1,6 +1,5 @@
 #include "cbmp.h"
 #include "init.c"
-#include <time.h>
 #include <stdio.h>
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y)

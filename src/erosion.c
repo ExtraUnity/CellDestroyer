@@ -2,7 +2,6 @@
 #include "cellDetection.c"
 #include "format.c"
 #include <stdio.h>
-#include <time.h>
 int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 {
     int erosionNumber = 0;

@@ -9,12 +9,13 @@
 
 int main(int argc, char **argv)
 {
-
+    // Check if program is called correctly
     if (argc != 4)
     {
         fprintf(stderr, "Usage: %s <difficulty mode> <start index (1-10)> <end index (1-10)>\n", argv[0]);
         exit(1);
     }
+
     char *mode = argv[1];
     for (int i = atoi(argv[2]); i <= atoi(argv[3]); i++)
     {

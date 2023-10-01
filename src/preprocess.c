@@ -1,5 +1,4 @@
 #include "cbmp.h"
-#include <math.h>
 #include <stdio.h>
 
 void greyTransform(unsigned char input_image[BMP_WIDTH][BMP_HEIGHT][BMP_CHANNELS], unsigned char grey_image[BMP_WIDTH][BMP_HEIGHT])
