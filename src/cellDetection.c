@@ -1,6 +1,7 @@
 #include "cbmp.h"
 #include "init.c"
 #include <time.h>
+#include <stdio.h>
 // Marks the cell with a red cross in output_image
 void markCell(int x, int y)
 {
@@ -11,7 +12,7 @@ void markCell(int x, int y)
 
     for (int dx = -size; dx <= size; dx++)
     {
-        // Ensures inside border edge horizontally (Redundant?)
+        // Ensures inside border edge horizontally
         if (x + dx >= 0 && x + dx < BMP_WIDTH)
         {
             // Draws the horizontal line
@@ -22,7 +23,7 @@ void markCell(int x, int y)
     }
     for (int dy = -size; dy <= size; dy++)
     {
-        // Ensures inside border edge vertically (Redundant?)
+        // Ensures inside border edge vertically
         if (y + dy >= 0 && y + dy < BMP_HEIGHT)
         {
             // Draws the vertical line
