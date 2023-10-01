@@ -6,7 +6,6 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
- 
 
 int main(int argc, char **argv)
 {
@@ -23,10 +22,10 @@ int main(int argc, char **argv)
         // Load image to input_image
         char buf[256];
         char *copy;
-        strcpy(copy,mode);
+        strcpy(copy, mode);
         snprintf(buf, 256, "../assets/samples/%s/%i%s.bmp", strlwr(copy), i, strupr(mode));
         read_bitmap(buf, input_image);
-        
+
         // Start clock for time analysis
         clock_t start, end;
         double cpu_time_used;
@@ -34,14 +33,14 @@ int main(int argc, char **argv)
         start = clock();
 
         // Transform image to grey and threshold it using a experimentally found 'low' threshold
-        greyTransform(input_image, greyscale_image);
-        binaryThreshold(greyscale_image, 90);
+        greyTransform(input_image, working_image);
+        binaryThreshold(working_image, 90);
 
         // Calculate the distance transform of the binary image and threshold using otsu's method
-         distanceTransform(greyscale_image);
-         // formatOutputImage(greyscale_image, output_image);
-         // write_bitmap(output_image, "../out/dist.bmp");
-         binaryThreshold(greyscale_image, otsu_threshold(greyscale_image));
+        distanceTransform(working_image);
+        formatOutputImage(working_image, output_image);
+        write_bitmap(output_image, "../out/dist.bmp");
+        binaryThreshold(working_image, otsu_threshold(working_image));
 
         // Total time for pre-processing
         end = clock();
@@ -51,7 +50,7 @@ int main(int argc, char **argv)
         Find all cells - hopefully :D
         */
 
-        totalCells = erodeImage(greyscale_image, output_image);
+        totalCells = erodeImage(working_image, output_image);
         // Total time of algorithm
         end = clock();
         cpu_time_used = end - start;

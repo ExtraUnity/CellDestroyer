@@ -28,11 +28,6 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         {-1, 11, -1, 11, -1},
     };
 
-    // unsigned char mask[DIST_MASK_SIZE][DIST_MASK_SIZE] = {
-    //     {4, 3, 4},
-    //     {3, 0, 3},
-    //     {4, 3, 4}
-    // };
     char changed = 1;
     while (changed)
     {
@@ -43,15 +38,15 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
         {
             for (int j = 0; j < BMP_HEIGHT; j++)
             {
-                if(!dist[i][j]) {
+                if (!dist[i][j])
+                {
                     continue;
                 }
-                
-                
+
                 unsigned char min = 255;
                 unsigned char oldVal = dist[i][j];
-                
-                for (char ky = -(DIST_MASK_SIZE-1)/2; ky <= (DIST_MASK_SIZE-1)/2; ky++)
+
+                for (char ky = -(DIST_MASK_SIZE - 1) / 2; ky <= (DIST_MASK_SIZE - 1) / 2; ky++)
                 {
 
                     if (j + ky < 0 || j + ky > BMP_HEIGHT - 1)
@@ -59,9 +54,9 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                         continue;
                     }
 
-                    for (char kx =  -(DIST_MASK_SIZE-1)/2; kx <= (DIST_MASK_SIZE-1)/2; kx++)
+                    for (char kx = -(DIST_MASK_SIZE - 1) / 2; kx <= (DIST_MASK_SIZE - 1) / 2; kx++)
                     {
-                        if (mask[kx + (DIST_MASK_SIZE-1)/2][ky + (DIST_MASK_SIZE-1)/2] == -1)
+                        if (mask[kx + (DIST_MASK_SIZE - 1) / 2][ky + (DIST_MASK_SIZE - 1) / 2] == -1)
                         {
                             continue;
                         }
@@ -70,7 +65,7 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                             continue;
                         }
 
-                        int val = dist[i + kx][j + ky] + mask[kx + (DIST_MASK_SIZE-1)/2][ky + (DIST_MASK_SIZE-1)/2];
+                        int val = dist[i + kx][j + ky] + mask[kx + (DIST_MASK_SIZE - 1) / 2][ky + (DIST_MASK_SIZE - 1) / 2];
                         if (val < min)
                         {
                             min = val;
@@ -91,7 +86,6 @@ void distanceTransform(unsigned char dist[BMP_WIDTH][BMP_HEIGHT])
                 dist[i][j] = newDist[i][j];
             }
         }
-        
     }
 }
 
@@ -105,13 +99,13 @@ unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
     {
         for (int y = 0; y < BMP_HEIGHT; y++)
         {
-            //Get the greyscale intensity level of each pixel
+            // Get the greyscale intensity level of each pixel
             int grey_level = greyscale_img[x][y];
 
-            //Count the number of pixel with the greyscale intensity and add it to histogram
+            // Count the number of pixel with the greyscale intensity and add it to histogram
             histogram[grey_level]++;
         }
-    } 
+    }
 
     // Calculates the sum of greyscale intensity (p) * num of pixel with this intensity (histrogram[p]) ).
     // Makes it easier to calculate muB and muF later.
@@ -134,31 +128,30 @@ unsigned char otsu_threshold(unsigned char greyscale_img[BMP_WIDTH][BMP_HEIGHT])
     int totalPixels = BMP_WIDTH * BMP_HEIGHT;
     for (int i = 0; i < 256; i++)
     {
-        //Background pixels
+        // Background pixels
         wB = wB + histogram[i];
-        if (wB == 0) continue;
+        if (wB == 0)
+            continue;
 
-        //Foreground pixels (rest)
+        // Foreground pixels (rest)
         wF = totalPixels - wB;
-        if (wF == 0) break;
+        if (wF == 0)
+            break;
 
         sumB += i * histogram[i];
-        sumW = (sum-sumB);
+        sumW = (sum - sumB);
 
         muB = sumB / wB;
         muF = sumW / wF;
 
         // Otsu Formula [maxVar² = wB*wF*(muB-muF)²] calculate the "in-between" Variance:
-        double varianceBetween = (double)wB * wF * ((muB - muF)*(muB - muF));
+        double varianceBetween = (double)wB * wF * ((muB - muF) * (muB - muF));
         if (varianceBetween > maxVariance)
         {
-            maxVariance = varianceBetween; //Ensures calculated variance is the desired maxvariance
+            maxVariance = varianceBetween; // Ensures calculated variance is the desired maxvariance
             threshold = i;
-                //printf("value: %d \n", threshold);
-
         }
     }
-    //printf("\nFinal Threshold Value: %d\n", threshold);
     return threshold;
 }
 

@@ -6,15 +6,13 @@
 int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BMP_WIDTH][BMP_HEIGHT])
 {
     int erosionNumber = 0;
-    int hasEroded = 1;
+    int hasEroded = 0;
 
     int kernel[3][3] = {
         {0, 1, 0},
         {1, 1, 1},
         {0, 1, 0},
     };
-
-    hasEroded = 0;
     // Copy original
     for (int i = 0; i < BMP_WIDTH; i++)
     {
@@ -52,14 +50,7 @@ int erode(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char erodedImage[BM
                         continue;
                     }
 
-                    if (kernel[kx + 1][ky + 1] ==
-                        0)
-                    { // If 0 in kernel then no need to check
-                        continue;
-                    }
-
-                    if (img[x + kx][y + ky] ==
-                        0) // If value is not 1 in place where it needs to be then erode
+                    if (kernel[kx + 1][ky + 1] && !img[x + kx][y + ky]) // If value is not 1 in place where it needs to be then erode
                     {
                         erode = 1;
                         hasEroded = 1;
@@ -99,13 +90,10 @@ int erodeImage(unsigned char img[BMP_WIDTH][BMP_HEIGHT], unsigned char output_im
 
         erosionNumber++;
         totalCells += detectCells(img, blackArea);
-        // Save erosion image to file and detect cells
-        // if (hasEroded)
-        // {
-        //     sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
-        //     formatOutputImage(erodedImage, output_image);
-        //     write_bitmap(output_image, fileName);
-        // }
+        // Save erosion image to file
+        sprintf(fileName, "../out/eroded%d.bmp", erosionNumber);
+        formatOutputImage(erodedImage, output_image);
+        write_bitmap(output_image, fileName);
     }
     return totalCells;
 }
